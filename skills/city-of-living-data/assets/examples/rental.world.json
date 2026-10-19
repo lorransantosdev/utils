@@ -1,0 +1,2758 @@
+{
+ "version": 2,
+ "meta": {
+  "title": "Harbor Rentals",
+  "subtitle": "Network · admin view",
+  "locale": "en",
+  "currency": "USD",
+  "palette": "cream",
+  "asOf": "2026-10-19T09:30:00Z",
+  "brand": {
+   "name": "Harbor",
+   "color": "#0E9F94"
+  },
+  "alias": {
+   "place": "Branch"
+  }
+ },
+ "roles": {
+  "manager": {
+   "label": "Branch manager",
+   "color": "#10B981"
+  },
+  "staff": {
+   "label": "Front desk",
+   "color": "#0E9F94"
+  },
+  "driver": {
+   "label": "Driver",
+   "color": "#3B82F6"
+  },
+  "trial": {
+   "label": "Trial account",
+   "color": "#A3A8AF"
+  },
+  "team": {
+   "label": "Harbor team",
+   "color": "#F59E0B"
+  }
+ },
+ "states": {
+  "road": {
+   "label": "On the road",
+   "tone": "brand",
+   "moving": true
+  },
+  "waiting": {
+   "label": "Reserved",
+   "tone": "blue"
+  },
+  "parked": {
+   "label": "In the lot",
+   "tone": "green"
+  }
+ },
+ "kpis": [
+  {
+   "label": "MRR · 3 branches",
+   "value": 8420,
+   "format": "currency",
+   "ref": {
+    "t": "place",
+    "id": "hq"
+   }
+  },
+  {
+   "label": "Cars on the road",
+   "value": 18,
+   "format": "int",
+   "sub": "of 33"
+  },
+  {
+   "label": "Needs attention",
+   "value": 4,
+   "format": "int",
+   "sub": "3 urgent",
+   "tone": "red",
+   "ref": {
+    "t": "actions"
+   }
+  }
+ ],
+ "home": {
+  "label": "Network",
+  "title": "Harbor network",
+  "subtitle": "3 branches · 24 trials · 33 cars"
+ },
+ "places": [
+  {
+   "id": "north",
+   "kind": "shop",
+   "name": "Harbor North",
+   "private": true,
+   "capacity": 12,
+   "sub": "Branch · open 7am–10pm",
+   "signSub": "Harbor Rentals",
+   "inbox": {
+    "count": 2,
+    "label": "Contracts to sign"
+   },
+   "screen": {
+    "title": "Today's board",
+    "tiles": [
+     {
+      "label": "On the road",
+      "value": "3/9",
+      "tone": "brand"
+     },
+     {
+      "label": "Pick-ups today",
+      "value": 2,
+      "tone": "blue"
+     },
+     {
+      "label": "Revenue (month)",
+      "value": "$11k",
+      "tone": "green"
+     }
+    ],
+    "bar": {
+     "label": "Fleet in use",
+     "value": 3,
+     "max": 9
+    }
+   },
+   "page": {
+    "blocks": [
+     {
+      "type": "stats",
+      "items": [
+       {
+        "label": "On the road",
+        "value": 3,
+        "of": 9
+       },
+       {
+        "label": "Revenue this month",
+        "value": "$27,400"
+       },
+       {
+        "label": "Utilisation",
+        "value": "33%"
+       },
+       {
+        "label": "Overdue",
+        "value": "$640",
+        "tone": "red"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "down",
+   "kind": "shop",
+   "name": "Harbor Downtown",
+   "private": true,
+   "capacity": 12,
+   "sub": "Branch · open 7am–10pm",
+   "signSub": "Harbor Rentals",
+   "inbox": {
+    "count": 1,
+    "label": "Contracts to sign"
+   },
+   "screen": {
+    "title": "Today's board",
+    "tiles": [
+     {
+      "label": "On the road",
+      "value": "6/11",
+      "tone": "brand"
+     },
+     {
+      "label": "Pick-ups today",
+      "value": 4,
+      "tone": "blue"
+     },
+     {
+      "label": "Revenue (month)",
+      "value": "$27k",
+      "tone": "green"
+     }
+    ],
+    "bar": {
+     "label": "Fleet in use",
+     "value": 6,
+     "max": 11
+    }
+   },
+   "page": {
+    "blocks": [
+     {
+      "type": "stats",
+      "items": [
+       {
+        "label": "On the road",
+        "value": 6,
+        "of": 11
+       },
+       {
+        "label": "Revenue this month",
+        "value": "$14,400"
+       },
+       {
+        "label": "Utilisation",
+        "value": "55%"
+       },
+       {
+        "label": "Overdue",
+        "value": "$640",
+        "tone": "red"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "air",
+   "kind": "shop",
+   "name": "Harbor Airport",
+   "private": true,
+   "capacity": 15,
+   "sub": "Branch · open 7am–10pm",
+   "signSub": "Harbor Rentals",
+   "inbox": {
+    "count": 1,
+    "label": "Contracts to sign"
+   },
+   "screen": {
+    "title": "Today's board",
+    "tiles": [
+     {
+      "label": "On the road",
+      "value": "9/13",
+      "tone": "brand"
+     },
+     {
+      "label": "Pick-ups today",
+      "value": 1,
+      "tone": "blue"
+     },
+     {
+      "label": "Revenue (month)",
+      "value": "$17k",
+      "tone": "green"
+     }
+    ],
+    "bar": {
+     "label": "Fleet in use",
+     "value": 9,
+     "max": 13
+    }
+   },
+   "page": {
+    "blocks": [
+     {
+      "type": "stats",
+      "items": [
+       {
+        "label": "On the road",
+        "value": 9,
+        "of": 13
+       },
+       {
+        "label": "Revenue this month",
+        "value": "$24,400"
+       },
+       {
+        "label": "Utilisation",
+        "value": "69%"
+       },
+       {
+        "label": "Overdue",
+        "value": "$640",
+        "tone": "red"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "trial",
+   "kind": "cluster",
+   "name": "Free trials",
+   "mark": "T",
+   "sub": "24 companies trying the product",
+   "signSub": "24 companies on a free trial",
+   "card": "24 trials · 7 with a car",
+   "gridNote": "green = added a car (7)",
+   "page": {
+    "blocks": [
+     {
+      "type": "funnel",
+      "title": "Trial funnel",
+      "items": [
+       {
+        "label": "Signed up",
+        "value": 24
+       },
+       {
+        "label": "Added a car",
+        "value": 7
+       },
+       {
+        "label": "Active this week",
+        "value": 4
+       }
+      ]
+     },
+     {
+      "type": "note",
+      "text": "17 of 24 never added a car — call them before the trial ends."
+     }
+    ]
+   }
+  },
+  {
+   "id": "hq",
+   "kind": "tower",
+   "name": "Harbor HQ",
+   "signTitle": "HARBOR",
+   "floors": 4,
+   "vault": 23,
+   "sub": "1 floor per $2k of monthly revenue",
+   "vaultText": "23 gold bars = 23 open rentals",
+   "nextFloor": "Next floor at $10k MRR (+$1.6k)",
+   "screen": {
+    "title": "Monthly recurring revenue",
+    "big": "$8,420",
+    "line": "3 branches · 24 trials · 32 cars",
+    "funnel": [
+     {
+      "label": "Trials",
+      "value": 24
+     },
+     {
+      "label": "Added a car",
+      "value": 7
+     },
+     {
+      "label": "Active this week",
+      "value": 4
+     },
+     {
+      "label": "Paying",
+      "value": 3,
+      "tone": "green"
+     }
+    ],
+    "spark": {
+     "title": "Fleet",
+     "items": [
+      {
+       "label": "Jul",
+       "value": 12
+      },
+      {
+       "label": "Aug",
+       "value": 19
+      },
+      {
+       "label": "Sep",
+       "value": 26
+      },
+      {
+       "label": "Oct",
+       "value": 32
+      }
+     ]
+    }
+   },
+   "page": {
+    "blocks": [
+     {
+      "type": "stats",
+      "items": [
+       {
+        "label": "MRR",
+        "value": "$8,420",
+        "sub": "+12% vs last month",
+        "tone": "green"
+       },
+       {
+        "label": "Branches",
+        "value": 3
+       },
+       {
+        "label": "Trials",
+        "value": 24
+       },
+       {
+        "label": "Open rentals",
+        "value": 23
+       }
+      ]
+     },
+     {
+      "type": "funnel",
+      "title": "Trial funnel",
+      "items": [
+       {
+        "label": "Trials",
+        "value": 24
+       },
+       {
+        "label": "Added a car",
+        "value": 7
+       },
+       {
+        "label": "Active this week",
+        "value": 4
+       },
+       {
+        "label": "Paying",
+        "value": 3,
+        "tone": "green"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "park",
+   "kind": "park",
+   "name": "Harbor Square"
+  }
+ ],
+ "vehicles": [
+  {
+   "id": "v1",
+   "place": "north",
+   "state": "road",
+   "name": "Leaf",
+   "color": "#C3C8CF",
+   "colorName": "silver",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$390"
+       ],
+       [
+        "Mileage",
+        "76,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv1"
+  },
+  {
+   "id": "v2",
+   "place": "north",
+   "state": "road",
+   "name": "Onix",
+   "color": "#F4F5F7",
+   "colorName": "white",
+   "alert": "red",
+   "tip": "1 payment overdue",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "alerts",
+      "items": [
+       {
+        "sev": "red",
+        "title": "1 payment overdue",
+        "text": "Call the driver today."
+       }
+      ]
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$291"
+       ],
+       [
+        "Mileage",
+        "61,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv2"
+  },
+  {
+   "id": "v3",
+   "place": "north",
+   "state": "road",
+   "name": "Onix",
+   "color": "#2A2D33",
+   "colorName": "black",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2024 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$211"
+       ],
+       [
+        "Mileage",
+        "36,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv3"
+  },
+  {
+   "id": "v4",
+   "place": "north",
+   "state": "waiting",
+   "name": "Clio",
+   "color": "#F4F5F7",
+   "colorName": "white",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2024 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$281"
+       ],
+       [
+        "Mileage",
+        "14,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv4"
+  },
+  {
+   "id": "v5",
+   "place": "north",
+   "state": "parked",
+   "name": "Onix",
+   "color": "#F4F5F7",
+   "colorName": "white",
+   "listSub": "25k km",
+   "stateText": "ready to rent",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$287"
+       ],
+       [
+        "Mileage",
+        "26,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "lines": [
+    "Ready when you are!"
+   ]
+  },
+  {
+   "id": "v6",
+   "place": "north",
+   "state": "waiting",
+   "name": "Onix",
+   "color": "#D33A2C",
+   "colorName": "red",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$226"
+       ],
+       [
+        "Mileage",
+        "21,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv6"
+  },
+  {
+   "id": "v7",
+   "place": "north",
+   "state": "waiting",
+   "name": "Kona",
+   "color": "#868C96",
+   "colorName": "grey",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$320"
+       ],
+       [
+        "Mileage",
+        "16,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv7"
+  },
+  {
+   "id": "v8",
+   "place": "north",
+   "state": "waiting",
+   "name": "Polo",
+   "color": "#868C96",
+   "colorName": "grey",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$316"
+       ],
+       [
+        "Mileage",
+        "62,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv8"
+  },
+  {
+   "id": "v9",
+   "place": "north",
+   "state": "parked",
+   "name": "Clio",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "listSub": "66k km",
+   "stateText": "ready to rent",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$256"
+       ],
+       [
+        "Mileage",
+        "39,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "lines": [
+    "Ready when you are!"
+   ]
+  },
+  {
+   "id": "v10",
+   "place": "down",
+   "state": "road",
+   "name": "Kona",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$335"
+       ],
+       [
+        "Mileage",
+        "17,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv10"
+  },
+  {
+   "id": "v11",
+   "place": "down",
+   "state": "road",
+   "name": "Model 3",
+   "color": "#E8B53A",
+   "colorName": "yellow",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2021 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$418"
+       ],
+       [
+        "Mileage",
+        "70,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv11"
+  },
+  {
+   "id": "v12",
+   "place": "down",
+   "state": "road",
+   "name": "Onix",
+   "color": "#2A2D33",
+   "colorName": "black",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$267"
+       ],
+       [
+        "Mileage",
+        "52,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv12"
+  },
+  {
+   "id": "v13",
+   "place": "down",
+   "state": "waiting",
+   "name": "Civic",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$249"
+       ],
+       [
+        "Mileage",
+        "68,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv13"
+  },
+  {
+   "id": "v14",
+   "place": "down",
+   "state": "waiting",
+   "name": "Corolla",
+   "color": "#2A2D33",
+   "colorName": "black",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$359"
+       ],
+       [
+        "Mileage",
+        "47,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv14"
+  },
+  {
+   "id": "v15",
+   "place": "down",
+   "state": "waiting",
+   "name": "Yaris",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$278"
+       ],
+       [
+        "Mileage",
+        "52,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv15"
+  },
+  {
+   "id": "v16",
+   "place": "down",
+   "state": "road",
+   "name": "Kona",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "alert": "red",
+   "tip": "1 payment overdue",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "alerts",
+      "items": [
+       {
+        "sev": "red",
+        "title": "1 payment overdue",
+        "text": "Call the driver today."
+       }
+      ]
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$306"
+       ],
+       [
+        "Mileage",
+        "15,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv16"
+  },
+  {
+   "id": "v17",
+   "place": "down",
+   "state": "road",
+   "name": "Model 3",
+   "color": "#D33A2C",
+   "colorName": "red",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2023 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$280"
+       ],
+       [
+        "Mileage",
+        "71,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv17"
+  },
+  {
+   "id": "v18",
+   "place": "down",
+   "state": "road",
+   "name": "Leaf",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2021 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$389"
+       ],
+       [
+        "Mileage",
+        "63,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv18"
+  },
+  {
+   "id": "v19",
+   "place": "down",
+   "state": "parked",
+   "name": "Leaf",
+   "color": "#D33A2C",
+   "colorName": "red",
+   "listSub": "53k km",
+   "stateText": "ready to rent",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$406"
+       ],
+       [
+        "Mileage",
+        "56,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "lines": [
+    "Ready when you are!"
+   ]
+  },
+  {
+   "id": "v20",
+   "place": "down",
+   "state": "parked",
+   "name": "Civic",
+   "color": "#C3C8CF",
+   "colorName": "silver",
+   "listSub": "30k km",
+   "stateText": "ready to rent",
+   "page": {
+    "subtitle": "2021 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$239"
+       ],
+       [
+        "Mileage",
+        "37,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "lines": [
+    "Ready when you are!"
+   ]
+  },
+  {
+   "id": "v21",
+   "place": "air",
+   "state": "road",
+   "name": "Model 3",
+   "color": "#F4F5F7",
+   "colorName": "white",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$336"
+       ],
+       [
+        "Mileage",
+        "80,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv21"
+  },
+  {
+   "id": "v22",
+   "place": "air",
+   "state": "road",
+   "name": "Onix",
+   "color": "#C3C8CF",
+   "colorName": "silver",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$353"
+       ],
+       [
+        "Mileage",
+        "14,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv22"
+  },
+  {
+   "id": "v23",
+   "place": "air",
+   "state": "road",
+   "name": "Leaf",
+   "color": "#E8B53A",
+   "colorName": "yellow",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$303"
+       ],
+       [
+        "Mileage",
+        "89,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv23"
+  },
+  {
+   "id": "v24",
+   "place": "air",
+   "state": "road",
+   "name": "Civic",
+   "color": "#868C96",
+   "colorName": "grey",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2023 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$221"
+       ],
+       [
+        "Mileage",
+        "22,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv24"
+  },
+  {
+   "id": "v25",
+   "place": "air",
+   "state": "road",
+   "name": "Civic",
+   "color": "#F4F5F7",
+   "colorName": "white",
+   "alert": "red",
+   "tip": "1 payment overdue",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2021 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "alerts",
+      "items": [
+       {
+        "sev": "red",
+        "title": "1 payment overdue",
+        "text": "Call the driver today."
+       }
+      ]
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$317"
+       ],
+       [
+        "Mileage",
+        "20,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv25"
+  },
+  {
+   "id": "v26",
+   "place": "air",
+   "state": "parked",
+   "name": "Civic",
+   "color": "#F4F5F7",
+   "colorName": "white",
+   "listSub": "34k km",
+   "stateText": "ready to rent",
+   "page": {
+    "subtitle": "2024 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$276"
+       ],
+       [
+        "Mileage",
+        "27,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "lines": [
+    "Ready when you are!"
+   ]
+  },
+  {
+   "id": "v27",
+   "place": "air",
+   "state": "waiting",
+   "name": "Clio",
+   "color": "#2F5FD0",
+   "colorName": "blue",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$301"
+       ],
+       [
+        "Mileage",
+        "23,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv27"
+  },
+  {
+   "id": "v28",
+   "place": "air",
+   "state": "road",
+   "name": "Polo",
+   "color": "#2E6B4C",
+   "colorName": "green",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2022 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$201"
+       ],
+       [
+        "Mileage",
+        "26,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv28"
+  },
+  {
+   "id": "v29",
+   "place": "air",
+   "state": "road",
+   "name": "Yaris",
+   "color": "#2F5FD0",
+   "colorName": "blue",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2025 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$221"
+       ],
+       [
+        "Mileage",
+        "74,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv29"
+  },
+  {
+   "id": "v30",
+   "place": "air",
+   "state": "road",
+   "name": "Model 3",
+   "color": "#2F5FD0",
+   "colorName": "blue",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2020 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$374"
+       ],
+       [
+        "Mileage",
+        "75,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv30"
+  },
+  {
+   "id": "v31",
+   "place": "air",
+   "state": "road",
+   "name": "Yaris",
+   "color": "#2A2D33",
+   "colorName": "black",
+   "listSub": "on the road until Nov 30",
+   "stateText": "with a driver until Nov 30",
+   "page": {
+    "subtitle": "2021 · hybrid",
+    "blocks": [
+     {
+      "type": "bar",
+      "label": "Contract",
+      "value": 12,
+      "max": 30,
+      "text": "day 12 of 30"
+     },
+     {
+      "type": "bar",
+      "label": "Payments",
+      "value": 2,
+      "max": 4,
+      "text": "2 of 4",
+      "tone": "green"
+     },
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$271"
+       ],
+       [
+        "Mileage",
+        "36,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv31"
+  },
+  {
+   "id": "v32",
+   "place": "air",
+   "state": "waiting",
+   "name": "Golf",
+   "color": "#2F5FD0",
+   "colorName": "blue",
+   "listSub": "pick-up today",
+   "stateText": "driver waiting at the counter",
+   "page": {
+    "subtitle": "2024 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$387"
+       ],
+       [
+        "Mileage",
+        "32,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "driver": "dv32"
+  },
+  {
+   "id": "v33",
+   "place": "air",
+   "state": "parked",
+   "name": "Golf",
+   "color": "#E8B53A",
+   "colorName": "yellow",
+   "listSub": "33k km",
+   "stateText": "ready to rent",
+   "page": {
+    "subtitle": "2024 · hybrid",
+    "blocks": [
+     {
+      "type": "kv",
+      "title": "Details",
+      "items": [
+       [
+        "Weekly rate",
+        "$306"
+       ],
+       [
+        "Mileage",
+        "53,000 km"
+       ]
+      ]
+     }
+    ]
+   },
+   "lines": [
+    "Ready when you are!"
+   ]
+  }
+ ],
+ "people": [
+  {
+   "id": "dv1",
+   "role": "driver",
+   "place": "north",
+   "state": "drive",
+   "vehicle": "v1",
+   "lines": [
+    "Got the Leaf until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Leaf",
+   "page": {
+    "subtitle": "Driver · Leaf silver"
+   }
+  },
+  {
+   "id": "dv2",
+   "role": "driver",
+   "place": "north",
+   "state": "drive",
+   "vehicle": "v2",
+   "lines": [
+    "Got the Onix until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Onix",
+   "page": {
+    "subtitle": "Driver · Onix white"
+   }
+  },
+  {
+   "id": "dv3",
+   "role": "driver",
+   "place": "north",
+   "state": "drive",
+   "vehicle": "v3",
+   "lines": [
+    "Got the Onix until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Onix",
+   "page": {
+    "subtitle": "Driver · Onix black"
+   }
+  },
+  {
+   "id": "dv4",
+   "role": "driver",
+   "place": "north",
+   "state": "wait",
+   "vehicle": "v4",
+   "lines": [
+    "Here to pick up the Clio!"
+   ],
+   "tip": "waiting for the Clio",
+   "page": {
+    "subtitle": "Driver · Clio white"
+   }
+  },
+  {
+   "id": "dv6",
+   "role": "driver",
+   "place": "north",
+   "state": "wait",
+   "vehicle": "v6",
+   "lines": [
+    "Here to pick up the Onix!"
+   ],
+   "tip": "waiting for the Onix",
+   "page": {
+    "subtitle": "Driver · Onix red"
+   }
+  },
+  {
+   "id": "dv7",
+   "role": "driver",
+   "place": "north",
+   "state": "wait",
+   "vehicle": "v7",
+   "lines": [
+    "Here to pick up the Kona!"
+   ],
+   "tip": "waiting for the Kona",
+   "page": {
+    "subtitle": "Driver · Kona grey"
+   }
+  },
+  {
+   "id": "dv8",
+   "role": "driver",
+   "place": "north",
+   "state": "wait",
+   "vehicle": "v8",
+   "lines": [
+    "Here to pick up the Polo!"
+   ],
+   "tip": "waiting for the Polo",
+   "page": {
+    "subtitle": "Driver · Polo grey"
+   }
+  },
+  {
+   "id": "m-north",
+   "role": "manager",
+   "place": "north",
+   "state": "wander",
+   "lines": [
+    "3 cars out today",
+    "Busy morning!"
+   ],
+   "tip": "branch manager"
+  },
+  {
+   "id": "s-north",
+   "role": "staff",
+   "place": "north",
+   "state": "work",
+   "lines": [
+    "Next, please!"
+   ],
+   "tip": "front desk"
+  },
+  {
+   "id": "dv10",
+   "role": "driver",
+   "place": "down",
+   "state": "drive",
+   "vehicle": "v10",
+   "lines": [
+    "Got the Kona until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Kona",
+   "page": {
+    "subtitle": "Driver · Kona green"
+   }
+  },
+  {
+   "id": "dv11",
+   "role": "driver",
+   "place": "down",
+   "state": "drive",
+   "vehicle": "v11",
+   "lines": [
+    "Got the Model 3 until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Model 3",
+   "page": {
+    "subtitle": "Driver · Model 3 yellow"
+   }
+  },
+  {
+   "id": "dv12",
+   "role": "driver",
+   "place": "down",
+   "state": "drive",
+   "vehicle": "v12",
+   "lines": [
+    "Got the Onix until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Onix",
+   "page": {
+    "subtitle": "Driver · Onix black"
+   }
+  },
+  {
+   "id": "dv13",
+   "role": "driver",
+   "place": "down",
+   "state": "wait",
+   "vehicle": "v13",
+   "lines": [
+    "Here to pick up the Civic!"
+   ],
+   "tip": "waiting for the Civic",
+   "page": {
+    "subtitle": "Driver · Civic green"
+   }
+  },
+  {
+   "id": "dv14",
+   "role": "driver",
+   "place": "down",
+   "state": "wait",
+   "vehicle": "v14",
+   "lines": [
+    "Here to pick up the Corolla!"
+   ],
+   "tip": "waiting for the Corolla",
+   "page": {
+    "subtitle": "Driver · Corolla black"
+   }
+  },
+  {
+   "id": "dv15",
+   "role": "driver",
+   "place": "down",
+   "state": "wait",
+   "vehicle": "v15",
+   "lines": [
+    "Here to pick up the Yaris!"
+   ],
+   "tip": "waiting for the Yaris",
+   "page": {
+    "subtitle": "Driver · Yaris green"
+   }
+  },
+  {
+   "id": "dv16",
+   "role": "driver",
+   "place": "down",
+   "state": "drive",
+   "vehicle": "v16",
+   "lines": [
+    "Got the Kona until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Kona",
+   "page": {
+    "subtitle": "Driver · Kona green"
+   }
+  },
+  {
+   "id": "dv17",
+   "role": "driver",
+   "place": "down",
+   "state": "drive",
+   "vehicle": "v17",
+   "lines": [
+    "Got the Model 3 until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Model 3",
+   "page": {
+    "subtitle": "Driver · Model 3 red"
+   }
+  },
+  {
+   "id": "dv18",
+   "role": "driver",
+   "place": "down",
+   "state": "drive",
+   "vehicle": "v18",
+   "lines": [
+    "Got the Leaf until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Leaf",
+   "page": {
+    "subtitle": "Driver · Leaf green"
+   }
+  },
+  {
+   "id": "m-down",
+   "role": "manager",
+   "place": "down",
+   "state": "wander",
+   "lines": [
+    "6 cars out today",
+    "Busy morning!"
+   ],
+   "tip": "branch manager"
+  },
+  {
+   "id": "s-down",
+   "role": "staff",
+   "place": "down",
+   "state": "work",
+   "lines": [
+    "Next, please!"
+   ],
+   "tip": "front desk"
+  },
+  {
+   "id": "dv21",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v21",
+   "lines": [
+    "Got the Model 3 until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Model 3",
+   "page": {
+    "subtitle": "Driver · Model 3 white"
+   }
+  },
+  {
+   "id": "dv22",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v22",
+   "lines": [
+    "Got the Onix until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Onix",
+   "page": {
+    "subtitle": "Driver · Onix silver"
+   }
+  },
+  {
+   "id": "dv23",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v23",
+   "lines": [
+    "Got the Leaf until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Leaf",
+   "page": {
+    "subtitle": "Driver · Leaf yellow"
+   }
+  },
+  {
+   "id": "dv24",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v24",
+   "lines": [
+    "Got the Civic until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Civic",
+   "page": {
+    "subtitle": "Driver · Civic grey"
+   }
+  },
+  {
+   "id": "dv25",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v25",
+   "lines": [
+    "Got the Civic until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Civic",
+   "page": {
+    "subtitle": "Driver · Civic white"
+   }
+  },
+  {
+   "id": "dv27",
+   "role": "driver",
+   "place": "air",
+   "state": "wait",
+   "vehicle": "v27",
+   "lines": [
+    "Here to pick up the Clio!"
+   ],
+   "tip": "waiting for the Clio",
+   "page": {
+    "subtitle": "Driver · Clio blue"
+   }
+  },
+  {
+   "id": "dv28",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v28",
+   "lines": [
+    "Got the Polo until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Polo",
+   "page": {
+    "subtitle": "Driver · Polo green"
+   }
+  },
+  {
+   "id": "dv29",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v29",
+   "lines": [
+    "Got the Yaris until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Yaris",
+   "page": {
+    "subtitle": "Driver · Yaris blue"
+   }
+  },
+  {
+   "id": "dv30",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v30",
+   "lines": [
+    "Got the Model 3 until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Model 3",
+   "page": {
+    "subtitle": "Driver · Model 3 blue"
+   }
+  },
+  {
+   "id": "dv31",
+   "role": "driver",
+   "place": "air",
+   "state": "drive",
+   "vehicle": "v31",
+   "lines": [
+    "Got the Yaris until Nov 30",
+    "Paid 2 of 4 so far"
+   ],
+   "tip": "driving the Yaris",
+   "page": {
+    "subtitle": "Driver · Yaris black"
+   }
+  },
+  {
+   "id": "dv32",
+   "role": "driver",
+   "place": "air",
+   "state": "wait",
+   "vehicle": "v32",
+   "lines": [
+    "Here to pick up the Golf!"
+   ],
+   "tip": "waiting for the Golf",
+   "page": {
+    "subtitle": "Driver · Golf blue"
+   }
+  },
+  {
+   "id": "m-air",
+   "role": "manager",
+   "place": "air",
+   "state": "wander",
+   "lines": [
+    "9 cars out today",
+    "Busy morning!"
+   ],
+   "tip": "branch manager"
+  },
+  {
+   "id": "s-air",
+   "role": "staff",
+   "place": "air",
+   "state": "work",
+   "lines": [
+    "Next, please!"
+   ],
+   "tip": "front desk"
+  },
+  {
+   "id": "t0",
+   "role": "trial",
+   "place": "trial",
+   "state": "wander",
+   "done": true,
+   "lines": [
+    "Just looking around 👀"
+   ]
+  },
+  {
+   "id": "t1",
+   "role": "trial",
+   "place": "trial",
+   "state": "wander",
+   "done": true,
+   "lines": [
+    "Just looking around 👀"
+   ]
+  },
+  {
+   "id": "t2",
+   "role": "trial",
+   "place": "trial",
+   "state": "wander",
+   "done": true,
+   "lines": [
+    "Just looking around 👀"
+   ]
+  },
+  {
+   "id": "t3",
+   "role": "trial",
+   "place": "trial",
+   "state": "wander",
+   "done": true,
+   "lines": [
+    "Just looking around 👀"
+   ]
+  },
+  {
+   "id": "t4",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": true,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t5",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": true,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t6",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": true,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t7",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t8",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t9",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t10",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t11",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t12",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t13",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t14",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t15",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t16",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t17",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t18",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t19",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t20",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t21",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t22",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "t23",
+   "role": "trial",
+   "place": "trial",
+   "state": "idle",
+   "done": false,
+   "lines": [
+    "Signed up, never came back"
+   ]
+  },
+  {
+   "id": "e0",
+   "role": "team",
+   "place": "hq",
+   "state": "work",
+   "lines": [
+    "Shipping the new dashboard"
+   ]
+  },
+  {
+   "id": "e1",
+   "role": "team",
+   "place": "hq",
+   "state": "work",
+   "lines": [
+    "Coffee first ☕"
+   ]
+  },
+  {
+   "id": "e2",
+   "role": "team",
+   "place": "hq",
+   "state": "work",
+   "lines": [
+    "On a call"
+   ]
+  },
+  {
+   "id": "e3",
+   "role": "team",
+   "place": "hq",
+   "state": "work",
+   "lines": [
+    "Shipping the new dashboard"
+   ]
+  },
+  {
+   "id": "e4",
+   "role": "team",
+   "place": "hq",
+   "state": "work",
+   "lines": [
+    "Coffee first ☕"
+   ]
+  },
+  {
+   "id": "e5",
+   "role": "team",
+   "place": "hq",
+   "state": "idle",
+   "lines": [
+    "On a call"
+   ]
+  },
+  {
+   "id": "e6",
+   "role": "team",
+   "place": "hq",
+   "state": "idle",
+   "lines": [
+    "Shipping the new dashboard"
+   ]
+  },
+  {
+   "id": "e7",
+   "role": "team",
+   "place": "hq",
+   "state": "idle",
+   "lines": [
+    "Coffee first ☕"
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "sev": "red",
+   "title": "Payment overdue · Onix",
+   "text": "Call the driver today.",
+   "place": "north",
+   "target": {
+    "t": "vehicle",
+    "id": "v2"
+   }
+  },
+  {
+   "sev": "red",
+   "title": "Payment overdue · Kona",
+   "text": "Call the driver today.",
+   "place": "down",
+   "target": {
+    "t": "vehicle",
+    "id": "v16"
+   }
+  },
+  {
+   "sev": "red",
+   "title": "Payment overdue · Civic",
+   "text": "Call the driver today.",
+   "place": "air",
+   "target": {
+    "t": "vehicle",
+    "id": "v25"
+   }
+  },
+  {
+   "sev": "amber",
+   "title": "6 trials end this week",
+   "text": "Call the ones who added a car.",
+   "place": "trial"
+  }
+ ],
+ "player": {
+  "name": "You",
+  "role": "admin",
+  "label": "You",
+  "cap": "#0E9F94"
+ },
+ "pet": {
+  "line": "Your dog. Goes wherever you go."
+ },
+ "companions": [
+  {
+   "name": "Mia",
+   "rel": "sister",
+   "greet": "Hey you!",
+   "look": {
+    "shirt": "#EC4899",
+    "style": "long"
+   }
+  },
+  {
+   "name": "Theo",
+   "rel": "friend",
+   "greet": "Yo!",
+   "look": {
+    "shirt": "#6366F1",
+    "style": "short"
+   }
+  }
+ ],
+ "timeline": {
+  "label": "Last 7 days",
+  "title": "Last 7 days",
+  "from": "2026-10-12T09:00:00Z",
+  "to": "2026-10-19T09:00:00Z",
+  "seconds": 40,
+  "events": [
+   {
+    "at": "2026-10-12T08:00:00Z",
+    "place": "north",
+    "vehicle": "v1",
+    "state": "parked",
+    "from": "road",
+    "text": "Leaf came back",
+    "tone": "green",
+    "amount": 240
+   },
+   {
+    "at": "2026-10-12T13:00:00Z",
+    "place": "down",
+    "vehicle": "v2",
+    "state": "road",
+    "from": "parked",
+    "text": "Onix left",
+    "tone": "brand"
+   },
+   {
+    "at": "2026-10-12T18:00:00Z",
+    "place": "air",
+    "vehicle": "v3",
+    "state": "parked",
+    "from": "road",
+    "text": "Onix came back",
+    "tone": "green"
+   },
+   {
+    "at": "2026-10-13T11:00:00Z",
+    "place": "north",
+    "vehicle": "v4",
+    "state": "road",
+    "from": "parked",
+    "text": "Clio left",
+    "tone": "brand",
+    "amount": 270
+   },
+   {
+    "at": "2026-10-13T16:00:00Z",
+    "place": "down",
+    "vehicle": "v5",
+    "state": "parked",
+    "from": "road",
+    "text": "Onix came back",
+    "tone": "green"
+   },
+   {
+    "at": "2026-10-13T09:00:00Z",
+    "place": "air",
+    "vehicle": "v6",
+    "state": "road",
+    "from": "parked",
+    "text": "Onix left",
+    "tone": "brand"
+   },
+   {
+    "at": "2026-10-14T14:00:00Z",
+    "place": "north",
+    "vehicle": "v7",
+    "state": "parked",
+    "from": "road",
+    "text": "Kona came back",
+    "tone": "green",
+    "amount": 300
+   },
+   {
+    "at": "2026-10-14T19:00:00Z",
+    "place": "down",
+    "vehicle": "v8",
+    "state": "road",
+    "from": "parked",
+    "text": "Polo left",
+    "tone": "brand"
+   },
+   {
+    "at": "2026-10-14T12:00:00Z",
+    "place": "air",
+    "vehicle": "v9",
+    "state": "parked",
+    "from": "road",
+    "text": "Clio came back",
+    "tone": "green"
+   },
+   {
+    "at": "2026-10-15T17:00:00Z",
+    "place": "north",
+    "vehicle": "v10",
+    "state": "road",
+    "from": "parked",
+    "text": "Kona left",
+    "tone": "brand",
+    "amount": 330
+   },
+   {
+    "at": "2026-10-15T10:00:00Z",
+    "place": "down",
+    "vehicle": "v11",
+    "state": "parked",
+    "from": "road",
+    "text": "Model 3 came back",
+    "tone": "green"
+   },
+   {
+    "at": "2026-10-15T15:00:00Z",
+    "place": "air",
+    "vehicle": "v12",
+    "state": "road",
+    "from": "parked",
+    "text": "Onix left",
+    "tone": "brand"
+   },
+   {
+    "at": "2026-10-16T08:00:00Z",
+    "place": "north",
+    "vehicle": "v13",
+    "state": "parked",
+    "from": "road",
+    "text": "Civic came back",
+    "tone": "green",
+    "amount": 360
+   },
+   {
+    "at": "2026-10-16T13:00:00Z",
+    "place": "down",
+    "vehicle": "v14",
+    "state": "road",
+    "from": "parked",
+    "text": "Corolla left",
+    "tone": "brand"
+   },
+   {
+    "at": "2026-10-16T18:00:00Z",
+    "place": "air",
+    "vehicle": "v15",
+    "state": "parked",
+    "from": "road",
+    "text": "Yaris came back",
+    "tone": "green"
+   },
+   {
+    "at": "2026-10-17T11:00:00Z",
+    "place": "north",
+    "vehicle": "v16",
+    "state": "road",
+    "from": "parked",
+    "text": "Kona left",
+    "tone": "brand",
+    "amount": 390
+   },
+   {
+    "at": "2026-10-17T16:00:00Z",
+    "place": "down",
+    "vehicle": "v17",
+    "state": "parked",
+    "from": "road",
+    "text": "Model 3 came back",
+    "tone": "green"
+   },
+   {
+    "at": "2026-10-17T09:00:00Z",
+    "place": "air",
+    "vehicle": "v18",
+    "state": "road",
+    "from": "parked",
+    "text": "Leaf left",
+    "tone": "brand"
+   }
+  ]
+ }
+}

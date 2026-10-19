@@ -1,0 +1,700 @@
+{
+ "version": 2,
+ "meta": {
+  "title": "Shopwave",
+  "subtitle": "How an order travels",
+  "locale": "en",
+  "palette": "mint",
+  "purpose": "explain",
+  "brand": {
+   "name": "Shopwave",
+   "color": "#6366F1"
+  }
+ },
+ "roles": {
+  "eng": {
+   "label": "Engineer",
+   "color": "#6366F1"
+  }
+ },
+ "states": {
+  "road": {
+   "label": "Out for delivery",
+   "tone": "brand",
+   "moving": true
+  },
+  "parked": {
+   "label": "At the dock",
+   "tone": "green"
+  }
+ },
+ "kpis": [
+  {
+   "label": "Orders today",
+   "value": 1284,
+   "format": "int",
+   "sub": "+8% vs yesterday"
+  },
+  {
+   "label": "Checkout p95",
+   "value": "1.2 s"
+  },
+  {
+   "label": "Degraded",
+   "value": 1,
+   "format": "int",
+   "sub": "Payments",
+   "tone": "red",
+   "ref": {
+    "t": "place",
+    "id": "payments"
+   }
+  }
+ ],
+ "home": {
+  "title": "Shopwave services",
+  "subtitle": "5 services and the platform underneath",
+  "blocks": [
+   {
+    "type": "list",
+    "of": "places",
+    "title": "Services"
+   }
+  ]
+ },
+ "places": [
+  {
+   "id": "gateway",
+   "kind": "office",
+   "name": "API Gateway",
+   "color": "#6366F1",
+   "sub": "Every request comes in here: auth, rate limits, routing.",
+   "page": {
+    "blocks": [
+     {
+      "type": "note",
+      "text": "Every request comes in here: auth, rate limits, routing."
+     },
+     {
+      "type": "kv",
+      "title": "Health",
+      "items": [
+       [
+        "p95",
+        "106 ms"
+       ],
+       [
+        "Errors",
+        "0.15%"
+       ],
+       [
+        "Calls/min",
+        "2,678"
+       ]
+      ]
+     }
+    ]
+   },
+   "floors": 2
+  },
+  {
+   "id": "orders",
+   "kind": "office",
+   "name": "Orders",
+   "color": "#0EA5E9",
+   "sub": "Creates the order, reserves stock, asks for payment.",
+   "page": {
+    "blocks": [
+     {
+      "type": "note",
+      "text": "Creates the order, reserves stock, asks for payment."
+     },
+     {
+      "type": "kv",
+      "title": "Health",
+      "items": [
+       [
+        "p95",
+        "128 ms"
+       ],
+       [
+        "Errors",
+        "0.36%"
+       ],
+       [
+        "Calls/min",
+        "1,631"
+       ]
+      ]
+     }
+    ]
+   },
+   "floors": 3
+  },
+  {
+   "id": "payments",
+   "kind": "office",
+   "name": "Payments",
+   "color": "#10B981",
+   "sub": "Charges the card through the PSP. Idempotent by order id.",
+   "page": {
+    "blocks": [
+     {
+      "type": "note",
+      "text": "Charges the card through the PSP. Idempotent by order id."
+     },
+     {
+      "type": "kv",
+      "title": "Health",
+      "items": [
+       [
+        "p95",
+        "133 ms"
+       ],
+       [
+        "Errors",
+        "0.06%"
+       ],
+       [
+        "Calls/min",
+        "618"
+       ]
+      ]
+     }
+    ]
+   },
+   "floors": 2,
+   "status": "warn",
+   "card": "p95 820 ms · PSP slow"
+  },
+  {
+   "id": "stock",
+   "kind": "shop",
+   "name": "Warehouse",
+   "color": "#F59E0B",
+   "sub": "Stock and shipping. The vans are the deliveries.",
+   "page": {
+    "blocks": [
+     {
+      "type": "note",
+      "text": "Stock and shipping. The vans are the deliveries."
+     },
+     {
+      "type": "kv",
+      "title": "Health",
+      "items": [
+       [
+        "p95",
+        "98 ms"
+       ],
+       [
+        "Errors",
+        "0.38%"
+       ],
+       [
+        "Calls/min",
+        "1,583"
+       ]
+      ]
+     }
+    ]
+   },
+   "capacity": 8,
+   "signSub": "Stock & shipping"
+  },
+  {
+   "id": "notify",
+   "kind": "office",
+   "name": "Notifications",
+   "color": "#EC4899",
+   "sub": "E-mails and push: order confirmed, shipped, delivered.",
+   "page": {
+    "blocks": [
+     {
+      "type": "note",
+      "text": "E-mails and push: order confirmed, shipped, delivered."
+     },
+     {
+      "type": "kv",
+      "title": "Health",
+      "items": [
+       [
+        "p95",
+        "92 ms"
+       ],
+       [
+        "Errors",
+        "0.39%"
+       ],
+       [
+        "Calls/min",
+        "2,699"
+       ]
+      ]
+     }
+    ]
+   },
+   "floors": 1
+  },
+  {
+   "id": "platform",
+   "kind": "tower",
+   "name": "Platform",
+   "sub": "Shared infra: databases, queues, observability.",
+   "page": {
+    "blocks": [
+     {
+      "type": "note",
+      "text": "Shared infra: databases, queues, observability."
+     },
+     {
+      "type": "kv",
+      "title": "Health",
+      "items": [
+       [
+        "p95",
+        "40 ms"
+       ],
+       [
+        "Errors",
+        "0.38%"
+       ],
+       [
+        "Calls/min",
+        "2,874"
+       ]
+      ]
+     }
+    ]
+   },
+   "floors": 3,
+   "vault": 12,
+   "vaultText": "12 bars = 12 deploys this week",
+   "nextFloor": "A floor per 1k req/s of peak traffic",
+   "signTitle": "PLATFORM"
+  },
+  {
+   "id": "park",
+   "kind": "park",
+   "name": "Lunch square"
+  }
+ ],
+ "vehicles": [
+  {
+   "id": "van0",
+   "place": "stock",
+   "state": "road",
+   "name": "Delivery #4120",
+   "color": "#F4F5F7",
+   "colorName": "van",
+   "stateText": "out for delivery",
+   "lines": [
+    "Out for delivery 📦"
+   ]
+  },
+  {
+   "id": "van1",
+   "place": "stock",
+   "state": "road",
+   "name": "Delivery #4121",
+   "color": "#F4F5F7",
+   "colorName": "van",
+   "stateText": "out for delivery",
+   "lines": [
+    "Out for delivery 📦"
+   ]
+  },
+  {
+   "id": "van2",
+   "place": "stock",
+   "state": "road",
+   "name": "Delivery #4122",
+   "color": "#F4F5F7",
+   "colorName": "van",
+   "stateText": "out for delivery",
+   "lines": [
+    "Out for delivery 📦"
+   ]
+  },
+  {
+   "id": "van3",
+   "place": "stock",
+   "state": "parked",
+   "name": "Delivery #4123",
+   "color": "#F4F5F7",
+   "colorName": "van",
+   "stateText": "waiting to be loaded",
+   "lines": [
+    "Waiting for parcels"
+   ]
+  },
+  {
+   "id": "van4",
+   "place": "stock",
+   "state": "parked",
+   "name": "Delivery #4124",
+   "color": "#F4F5F7",
+   "colorName": "van",
+   "stateText": "waiting to be loaded",
+   "lines": [
+    "Waiting for parcels"
+   ]
+  },
+  {
+   "id": "van5",
+   "place": "stock",
+   "state": "parked",
+   "name": "Delivery #4125",
+   "color": "#F4F5F7",
+   "colorName": "van",
+   "stateText": "waiting to be loaded",
+   "lines": [
+    "Waiting for parcels"
+   ]
+  }
+ ],
+ "people": [
+  {
+   "id": "gateway-0",
+   "role": "eng",
+   "place": "gateway",
+   "state": "work",
+   "lines": [
+    "On call for API Gateway"
+   ]
+  },
+  {
+   "id": "gateway-1",
+   "role": "eng",
+   "place": "gateway",
+   "state": "work",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "gateway-2",
+   "role": "eng",
+   "place": "gateway",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "orders-0",
+   "role": "eng",
+   "place": "orders",
+   "state": "work",
+   "lines": [
+    "On call for Orders"
+   ]
+  },
+  {
+   "id": "orders-1",
+   "role": "eng",
+   "place": "orders",
+   "state": "work",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "orders-2",
+   "role": "eng",
+   "place": "orders",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "payments-0",
+   "role": "eng",
+   "place": "payments",
+   "state": "work",
+   "lines": [
+    "On call for Payments"
+   ]
+  },
+  {
+   "id": "payments-1",
+   "role": "eng",
+   "place": "payments",
+   "state": "work",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "payments-2",
+   "role": "eng",
+   "place": "payments",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "stock-0",
+   "role": "eng",
+   "place": "stock",
+   "state": "work",
+   "lines": [
+    "On call for Warehouse"
+   ]
+  },
+  {
+   "id": "stock-1",
+   "role": "eng",
+   "place": "stock",
+   "state": "work",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "stock-2",
+   "role": "eng",
+   "place": "stock",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "notify-0",
+   "role": "eng",
+   "place": "notify",
+   "state": "work",
+   "lines": [
+    "On call for Notifications"
+   ]
+  },
+  {
+   "id": "notify-1",
+   "role": "eng",
+   "place": "notify",
+   "state": "work",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "notify-2",
+   "role": "eng",
+   "place": "notify",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "platform-0",
+   "role": "eng",
+   "place": "platform",
+   "state": "work",
+   "lines": [
+    "On call for Platform"
+   ]
+  },
+  {
+   "id": "platform-1",
+   "role": "eng",
+   "place": "platform",
+   "state": "work",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "platform-2",
+   "role": "eng",
+   "place": "platform",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "platform-3",
+   "role": "eng",
+   "place": "platform",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "platform-4",
+   "role": "eng",
+   "place": "platform",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  },
+  {
+   "id": "platform-5",
+   "role": "eng",
+   "place": "platform",
+   "state": "idle",
+   "lines": [
+    "Reviewing a PR"
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "sev": "amber",
+   "title": "Payments p95 at 820 ms",
+   "text": "The PSP is slow since 09:10.",
+   "place": "payments"
+  }
+ ],
+ "journeys": [
+  {
+   "title": "Checkout",
+   "steps": [
+    {
+     "place": "gateway",
+     "title": "1 · The order arrives",
+     "text": "The app sends the cart to the gateway. It checks the token and the rate limit.",
+     "payload": "POST /orders { cart: 3 items, total: 89.90 }"
+    },
+    {
+     "move": {
+      "from": "gateway",
+      "to": "orders",
+      "say": "POST /orders"
+     },
+     "title": "2 · Orders creates it",
+     "text": "Orders saves it as PENDING and reserves the stock."
+    },
+    {
+     "move": {
+      "from": "orders",
+      "to": "payments",
+      "say": "charge 89.90"
+     },
+     "title": "3 · Payment",
+     "text": "Payments charges the card. The order id is the idempotency key, so a retry never charges twice.",
+     "payload": "{ \"status\": \"PAID\", \"psp_id\": \"ch_81f…\" }"
+    },
+    {
+     "move": {
+      "from": "payments",
+      "to": "stock",
+      "say": "ship order 4127"
+     },
+     "title": "4 · Ship it",
+     "text": "The warehouse picks the parcel; a van leaves."
+    },
+    {
+     "move": {
+      "from": "stock",
+      "to": "notify",
+      "say": "order shipped"
+     },
+     "title": "5 · Tell the customer",
+     "text": "Notifications sends “your order is on the way”."
+    },
+    {
+     "ref": {
+      "t": "home"
+     },
+     "title": "Done",
+     "text": "5 services, ~1.2 s end to end."
+    }
+   ]
+  },
+  {
+   "title": "Card declined",
+   "steps": [
+    {
+     "move": {
+      "from": "gateway",
+      "to": "orders"
+     },
+     "title": "1 · Same start",
+     "text": "Order created as PENDING."
+    },
+    {
+     "move": {
+      "from": "orders",
+      "to": "payments"
+     },
+     "place": "payments",
+     "fail": true,
+     "title": "2 · Declined",
+     "text": "The PSP says “insufficient funds”. Payments answers 402 and the order is cancelled; the stock is released.",
+     "payload": "{ \"error\": \"card_declined\", \"code\": 402 }"
+    },
+    {
+     "place": "notify",
+     "title": "3 · Tell the customer",
+     "text": "A friendly message with a link to try another card."
+    }
+   ]
+  }
+ ],
+ "tour": {
+  "label": "Checkout",
+  "steps": [
+   {
+    "place": "gateway",
+    "title": "1 · The order arrives",
+    "text": "The app sends the cart to the gateway. It checks the token and the rate limit.",
+    "payload": "POST /orders { cart: 3 items, total: 89.90 }"
+   },
+   {
+    "move": {
+     "from": "gateway",
+     "to": "orders",
+     "say": "POST /orders"
+    },
+    "title": "2 · Orders creates it",
+    "text": "Orders saves it as PENDING and reserves the stock."
+   },
+   {
+    "move": {
+     "from": "orders",
+     "to": "payments",
+     "say": "charge 89.90"
+    },
+    "title": "3 · Payment",
+    "text": "Payments charges the card. The order id is the idempotency key, so a retry never charges twice.",
+    "payload": "{ \"status\": \"PAID\", \"psp_id\": \"ch_81f…\" }"
+   },
+   {
+    "move": {
+     "from": "payments",
+     "to": "stock",
+     "say": "ship order 4127"
+    },
+    "title": "4 · Ship it",
+    "text": "The warehouse picks the parcel; a van leaves."
+   },
+   {
+    "move": {
+     "from": "stock",
+     "to": "notify",
+     "say": "order shipped"
+    },
+    "title": "5 · Tell the customer",
+    "text": "Notifications sends “your order is on the way”."
+   },
+   {
+    "ref": {
+     "t": "home"
+    },
+    "title": "Done",
+    "text": "5 services, ~1.2 s end to end."
+   }
+  ]
+ },
+ "player": {
+  "name": "You",
+  "role": "new engineer"
+ }
+}

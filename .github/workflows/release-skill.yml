@@ -1,0 +1,28 @@
+# Publishes a skill as a downloadable zip.
+# Push a tag named <skill>-v<version>, e.g.:  git tag city-of-living-data-v2.0.0 && git push --tags
+name: Release a skill
+on:
+  push:
+    tags: ['*-v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the zip
+        id: zip
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          SKILL="${TAG%-v*}"; VERSION="${TAG##*-v}"
+          test -f "skills/$SKILL/SKILL.md" || { echo "no skills/$SKILL/SKILL.md"; exit 1; }
+          cd skills && zip -qr "../$SKILL.zip" "$SKILL" -x "$SKILL/docs/*" && cd ..
+          echo "skill=$SKILL" >> "$GITHUB_OUTPUT"; echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "${{ steps.zip.outputs.skill }}.zip" \
+            --title "${{ steps.zip.outputs.skill }} ${{ steps.zip.outputs.version }}" \
+            --notes "Download **${{ steps.zip.outputs.skill }}.zip** and upload it in Claude (Customize → Skills → + → Upload a skill), or unzip it into ~/.claude/skills/. See skills/${{ steps.zip.outputs.skill }}/README.md."

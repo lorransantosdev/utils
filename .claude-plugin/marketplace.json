@@ -1,0 +1,14 @@
+{
+  "name": "lorran-utils",
+  "owner": { "name": "Lorran Sarmento" },
+  "metadata": { "description": "Agent skills by Lorran Sarmento", "version": "1.0.0" },
+  "plugins": [
+    {
+      "name": "city-of-living-data",
+      "description": "Turn a business, a SaaS or a system into a living 3D isometric city where everything is clickable: monitor data, explain flows, present it on video.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/city-of-living-data"]
+    }
+  ]
+}

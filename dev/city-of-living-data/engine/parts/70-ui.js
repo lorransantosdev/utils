@@ -36,8 +36,8 @@
   const refAttr = (r) => r ? `data-ref='${esc(JSON.stringify(r))}'` : '';
   const actRef = (a) => a.target ?? (a.place ? { t: 'place', id: a.place } : null);
   const actRow = (a) => { const r = actRef(a); return `<button class="row" ${refAttr(r)}><span class="sv ${a.sev}"></span><span class="grow"><b>${esc(a.title)}</b><small>${esc([a.place && placeById.get(a.place)?.shown, a.text].filter(Boolean).join(' · '))}</small></span>${r ? ic('chev') : ''}</button>`; };
-  const vehRow = (v) => { const st = stOf(v); return `<button class="row ${view?.t === 'vehicle' && view.id === v.id ? 'sel' : ''}" ${refAttr({ t: 'vehicle', id: v.id })}><span class="swatch" style="background:${v.color}"></span><span class="grow ell"><b>${esc(v.name)} ${v.colorName ? `<i>${esc(v.colorName)}</i>` : ''}</b><small>${esc(v.listSub ?? placeById.get(v.place)?.shown ?? '')}</small></span>${v.alert === 'red' ? '<span class="badge">!</span>' : ''}${pill(st)}</button>`; };
-  const perRow = (q) => `<button class="row" ${refAttr({ t: 'person', id: q.id })}><span class="dot" style="background:${roleOf(q).color}"></span><span class="grow ell"><b>${esc(q.shown)}</b><small>${esc(q.listSub ?? roleOf(q).label)}</small></span>${ic('chev')}</button>`;
+  const vehRow = (v) => { const st = stOf(v); return `<button class="row ${view?.t === 'vehicle' && view.id === v.id ? 'sel' : ''}" ${refAttr({ t: 'vehicle', id: v.id })}><span class="swatch" style="background:${col(v.color)}"></span><span class="grow ell"><b>${esc(v.name)} ${v.colorName ? `<i>${esc(v.colorName)}</i>` : ''}</b><small>${esc(v.listSub ?? placeById.get(v.place)?.shown ?? '')}</small></span>${v.alert === 'red' ? '<span class="badge">!</span>' : ''}${pill(st)}</button>`; };
+  const perRow = (q) => `<button class="row" ${refAttr({ t: 'person', id: q.id })}><span class="dot" style="background:${col(roleOf(q).color)}"></span><span class="grow ell"><b>${esc(q.shown)}</b><small>${esc(q.listSub ?? roleOf(q).label)}</small></span>${ic('chev')}</button>`;
   function stackBar(p) {
     const tot = Math.max(1, p.vehicles.length), by = (f) => p.vehicles.filter(f).length / tot * 100;
     return p.vehicles.length ? `<div class="stack"><i style="width:${by(moving)}%;background:var(--brand)"></i><i style="width:${by((v) => !moving(v) && stOf(v).tone === 'blue')}%;background:var(--blue)"></i><i style="width:${by((v) => !moving(v) && stOf(v).tone !== 'blue')}%;background:var(--green)"></i></div>` : '';
@@ -55,7 +55,7 @@
         case 'funnel': { const mx = Math.max(1, ...b.items.map((i) => i.value)); return `<div class="blk">${h}${b.items.map((i) => `<div class="fn"><span>${esc(i.label)}</span><div class="bar ${i.tone ?? ''}"><i style="width:${Math.max(3, i.value / mx * 100)}%"></i></div><b>${esc(i.value)}</b></div>`).join('')}${b.note ? `<p class="muted">${esc(b.note)}</p>` : ''}</div>`; }
         case 'spark': { const mx = Math.max(1, ...b.items.map((i) => i.value)); return `<div class="blk">${h}<div class="spark">${b.items.map((i) => `<div><span style="height:${Math.max(4, i.value / mx * 46)}px"></span>${esc(i.label)} · ${esc(i.value)}</div>`).join('')}</div>${b.note ? `<p class="muted">${esc(b.note)}</p>` : ''}</div>`; }
         case 'note': return `<p class="muted">${esc(b.text)}</p>`;
-        case 'chips': return `<div class="blk">${h}<div class="ppl">${b.items.map((c) => `<span ${refAttr(c.ref)} class="${c.ref ? 'lnk' : ''}"><i style="background:${c.color ?? 'var(--muted)'}"></i>${esc(c.label)}</span>`).join('')}</div></div>`;
+        case 'chips': return `<div class="blk">${h}<div class="ppl">${b.items.map((c) => `<span ${refAttr(c.ref)} class="${c.ref ? 'lnk' : ''}"><i style="background:${col(c.color, 'var(--muted)')}"></i>${esc(c.label)}</span>`).join('')}</div></div>`;
         case 'list': {
           let items = b.of === 'places' ? PLACES.filter((p) => !p.auto) : b.of === 'actions' ? sortActs(ACTS) : b.of === 'vehicles' ? VEH : PEO;
           if (b.ids) items = b.ids.map((id) => (b.of === 'places' ? placeById : b.of === 'vehicles' ? vehById : b.of === 'people' ? perById : new Map(ACTS.map((a) => [a.id, a]))).get(String(id))).filter(Boolean);
@@ -88,7 +88,7 @@
       const cap = p.capacity;
       return { crumbs: [crumbHome(), [null, p.shown]], html: `
         <div class="hero">${markHtml(p, 44)}<div><h2>${esc(p.shown)}</h2><p>${esc(p.page?.subtitle ?? p.sub ?? '')}</p></div></div>
-        ${p.enterable && !inside ? `<button class="btn enter" data-do="enter:${p.id}">${ic('enter')}${T.enterPlace}<small>${esc(p.enterHint ?? T.enterHint)}</small></button>` : ''}
+        ${p.enterable && !inside ? `<button class="btn enter" data-do="enter:${esc(p.id)}">${ic('enter')}${T.enterPlace}<small>${esc(p.enterHint ?? T.enterHint)}</small></button>` : ''}
         ${cap ? blocks([{ type: 'bar', label: T.capacity, value: p.vehicles.length, max: cap, text: `${p.vehicles.length} ${T.of} ${cap} ${T.used} · ${Math.max(0, cap - p.vehicles.length)} ${T.free}`, tone: 'blue' }]) : ''}
         ${blocks(p.page?.blocks)}
         ${tabs.length ? `<div class="blk"><div class="tabs">${tabs.map(([k, l, c]) => `<button data-tab="${k}" class="${tab === k ? 'on' : ''}">${l} <em>${c}</em></button>`).join('')}</div>${list}</div>` : ''}
@@ -99,7 +99,7 @@
       const p = placeById.get(x.place), st = stOf(x), dr = x.driver && perById.get(x.driver), mv = moving(x);
       const crumbs = [crumbHome()]; if (p) crumbs.push([{ t: 'place', id: p.id }, p.shown]); crumbs.push([null, x.name]);
       return { crumbs, html: `
-        <div class="hero"><span class="mk sw" style="background:${x.color}"></span><div><h2>${esc(x.name)} ${x.colorName ? esc(x.colorName) : ''}</h2><p>${esc(x.page?.subtitle ?? p?.shown ?? '')}${x._f?.bay ? ` · ${T.bay} ${String(x._f.bay.n).padStart(2, '0')}` : ''}</p></div></div>
+        <div class="hero"><span class="mk sw" style="background:${col(x.color)}"></span><div><h2>${esc(x.name)} ${x.colorName ? esc(x.colorName) : ''}</h2><p>${esc(x.page?.subtitle ?? p?.shown ?? '')}${x._f?.bay ? ` · ${T.bay} ${String(x._f.bay.n).padStart(2, '0')}` : ''}</p></div></div>
         <div class="status">${pill(st)}<span class="sub">${esc(x.stateText ?? '')}</span></div>
         ${blocks(x.page?.blocks)}
         <div class="btns">${mv ? btn({ label: follow?.ref?.id === x.id ? T.unfollow : T.follow, icon: 'target', do: 'follow' }, 0) + btn({ label: T.ride, icon: 'car', do: 'ride:' + x.id }, 1) : ''}${dr ? btn({ label: T.seeDriver, icon: 'user', ref: { t: 'person', id: dr.id } }, mv ? 1 : 0) : ''}</div>` };
@@ -110,14 +110,14 @@
       const crumbs = [crumbHome()]; if (p) crumbs.push([{ t: 'place', id: p.id }, p.shown]); crumbs.push([null, q.shown]);
       const said = q._said ?? (q.lines?.[0]);
       return { crumbs, html: `
-        <div class="hero"><span class="mk" style="background:${R.color}">${esc(q.shown[0] ?? '?')}</span><div><h2>${esc(q.shown)}</h2><p>${esc(q.page?.subtitle ?? [R.label, p?.shown].filter(Boolean).join(' · '))}</p></div></div>
+        <div class="hero"><span class="mk" style="background:${col(R.color)}">${esc(q.shown[0] ?? '?')}</span><div><h2>${esc(q.shown)}</h2><p>${esc(q.page?.subtitle ?? [R.label, p?.shown].filter(Boolean).join(' · '))}</p></div></div>
         ${said ? `<blockquote class="say">“${esc(said)}”</blockquote>` : ''}
         ${blocks(q.page?.blocks)}
         <div class="btns">${btn({ label: T.talk, icon: 'chat', do: 'talk' }, 0)}${veh ? btn({ label: T.seeVehicle, icon: 'car', ref: { t: 'vehicle', id: veh.id } }, 1) : ''}${p && p.kind !== 'park' ? btn({ label: T.seePlace, icon: 'building', ref: { t: 'place', id: p.id } }, 1) : ''}${q._pawn?.mode === 'wander' || (veh && moving(veh) && veh.driver === q.id) ? btn({ label: T.follow, icon: 'target', do: 'follow' }, 1) : ''}</div>` };
     },
-    companion(v) { const c = W.companions[v.i]; return { crumbs: [crumbHome(), [{ t: 'place', id: park.id }, park.shown], [null, c.name]], html: `<div class="hero"><span class="mk" style="background:${c.look?.shirt ?? 'var(--brand)'}">${esc(c.name[0])}</span><div><h2>${esc(c.name)}</h2><p>${esc(c.rel ?? '')}</p></div></div>${c._said ? `<blockquote class="say">“${esc(c._said)}”</blockquote>` : ''}${blocks(c.page?.blocks)}<div class="btns">${btn({ label: T.talk, icon: 'chat', do: 'talk' }, 0)}</div>` }; },
+    companion(v) { const c = W.companions[v.i]; return { crumbs: [crumbHome(), [{ t: 'place', id: park.id }, park.shown], [null, c.name]], html: `<div class="hero"><span class="mk" style="background:${col(c.look?.shirt, 'var(--brand)')}">${esc(c.name[0])}</span><div><h2>${esc(c.name)}</h2><p>${esc(c.rel ?? '')}</p></div></div>${c._said ? `<blockquote class="say">“${esc(c._said)}”</blockquote>` : ''}${blocks(c.page?.blocks)}<div class="btns">${btn({ label: T.talk, icon: 'chat', do: 'talk' }, 0)}</div>` }; },
     me() { return { crumbs: [crumbHome(), [null, W.player.name]], html: `<div class="hero"><span class="mk dark">${esc(W.player.name[0])}</span><div><h2>${esc(W.player.name)}</h2><p>${esc(W.player.role ?? T.you)}</p></div></div><div class="btns">${btn({ label: T.walk, icon: 'walk', do: 'mode:walk' }, 0)}${btn({ label: T.fly, icon: 'heli', do: 'heli' }, 1)}</div>` }; },
-    pet() { return { crumbs: [crumbHome(), [null, 'Scott']], html: `<div class="hero"><span class="mk" style="background:${W.pet.coat}">S</span><div><h2>${esc(W.pet.label ?? 'Scott')}</h2><p>${esc(W.pet.line ?? T.pet)}</p></div></div><div class="btns">${btn({ label: '🦴', do: 'pet' }, 0)}${btn({ label: T.walk, icon: 'walk', do: 'mode:walk' }, 1)}</div>` }; },
+    pet() { return { crumbs: [crumbHome(), [null, 'Scott']], html: `<div class="hero"><span class="mk" style="background:${col(W.pet.coat)}">S</span><div><h2>${esc(W.pet.label ?? 'Scott')}</h2><p>${esc(W.pet.line ?? T.pet)}</p></div></div><div class="btns">${btn({ label: '🦴', do: 'pet' }, 0)}${btn({ label: T.walk, icon: 'walk', do: 'mode:walk' }, 1)}</div>` }; },
     prop(v) {
       const p = v.place && placeById.get(v.place), crumbs = [crumbHome()]; if (p) crumbs.push([{ t: 'place', id: p.id }, p.shown]);
       const page = (title, sub, body = '', mk = ic('flag')) => ({ crumbs: [...crumbs, [null, title]], html: `<div class="hero"><span class="mk dark">${mk}</span><div><h2>${esc(title)}</h2><p>${esc(sub ?? '')}</p></div></div>${body}` });

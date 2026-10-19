@@ -17,6 +17,7 @@
     if (r.t === 'action') { const a = ACTS.find((x) => x.id === r.id); return open(actRef(a) ?? { t: 'actions' }); }
     if (r.t === 'place' && !placeById.get(r.id)) return;
     if (r.t === 'place' && r.id !== view?.id) tab = null;
+    if (r.tab) tab = r.tab;
     view = r; follow = null;
     selV = r.t === 'vehicle' ? vehById.get(r.id)?._f?.i ?? -1 : r.t === 'person' && perById.get(r.id)?._pawn?.hidden ? vehById.get(perById.get(r.id).vehicle)?._f?.i ?? -1 : -1;
     const pw = pawnOfRef(r); selPawn = pw && !inside ? pw.id : -1;
@@ -106,7 +107,7 @@
   host.querySelector('[data-zin]').onclick = () => zoomBy(1.4); host.querySelector('[data-zout]').onclick = () => zoomBy(1 / 1.4);
   host.querySelector('[data-rotl]').onclick = () => rotateBy(-Math.PI / 2); host.querySelector('[data-rotr]').onclick = () => rotateBy(Math.PI / 2);
   host.querySelector('[data-home]').onclick = () => { if (inside) return exitBuilding(); if (mode !== 'map') setMode('map'); if (view) closeDrawer(); else viewAll(); };
-  function setVideo(on) { videoMode = on; app.classList.toggle('video', on); renderDock(); setTimeout(() => { resize(); if (!inside) viewAll(.6); }, 60); }
+  function setVideo(on) { videoMode = on; app.classList.toggle('video', on); renderDock(); later(() => { resize(); if (!inside) viewAll(.6); }, 60); }
 
   // ============================================================================ hover + click in the city (and inside)
   const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
@@ -225,14 +226,14 @@
   const keys = new Set();
   const typing = () => /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName ?? '');
   const MOVE = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyC', 'ShiftLeft', 'ShiftRight'];
-  const visible = () => host.isConnected && host.offsetParent !== null;
+  const visible = () => host.isConnected && host.getClientRects().length > 0;
   const onKeyDown = (e) => {
     if (typing() || !visible()) return;
     if (tour && (e.code === 'ArrowRight' || e.code === 'Space')) { e.preventDefault(); return nextStep(); }
     if (tour && e.code === 'ArrowLeft') { e.preventDefault(); tour.i = Math.max(-1, tour.i - 2); return nextStep(); }
     if (e.key === 'Escape') { if (tour || replay) { stopTour(); stopReplay(); return; } if (view) return closeDrawer(); if (inside) return exitBuilding(); if (mode !== 'map') return setMode('map'); }
     if (mode === 'map') {
-      if (!inside && e.code === 'KeyQ') rotateBy(-Math.PI / 2); if (!inside && e.code === 'KeyE') rotateBy(Math.PI / 2);
+      if (e.code === 'KeyQ') rotateBy(-Math.PI / 2); if (e.code === 'KeyE') rotateBy(Math.PI / 2);
       if (e.key === '+' || e.key === '=') zoomBy(1.4); if (e.key === '-') zoomBy(1 / 1.4);
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) { keys.add(e.code); e.preventDefault(); if (!inside) { follow = null; tween = null; } }
       return;

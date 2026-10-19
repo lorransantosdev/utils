@@ -59,7 +59,7 @@ Props: `world`, `options`; emits `ready` with the API. Created in `onMounted`, d
 Nuxt: wrap it in `<ClientOnly>`.
 
 ## 6. Angular — `assets/integrations/angular/city-view.component.ts`
-Standalone component `<city-view [world]="world" [options]="opts" (ready)="city = $event">`.
+Standalone component `<app-city-view [world]="world" [options]="opts" (ready)="city = $event">`. A new `world` or `options` input rebuilds the city.
 It creates the city in `ngAfterViewInit` inside `NgZone.runOutsideAngular` (the render loop must
 not trigger change detection) and destroys it in `ngOnDestroy`. Add the CSS to `styles` in
 `angular.json` (or import it in the global stylesheet). Give the host element a size with CSS.
@@ -70,10 +70,10 @@ not trigger change detection) and destroys it in `ngOnDestroy`. Add the CSS to `
   import { onMount } from 'svelte';
   import '../city/city-of-living-data.css';
   export let world; let el, city;
-  onMount(async () => {
-    const { createCity } = await import('../city/city-of-living-data.js');
-    city = createCity(el, world);
-    return () => city.destroy();
+  onMount(() => {
+    let alive = true;
+    import('../city/city-of-living-data.js').then(({ createCity }) => { if (alive) city = createCity(el, world); });
+    return () => { alive = false; city?.destroy(); };   // onMount must return the cleanup synchronously
   });
 </script>
 <div bind:this={el} style="position: fixed; inset: 0"></div>

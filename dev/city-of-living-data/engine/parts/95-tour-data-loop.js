@@ -34,16 +34,16 @@
     if (s.fail && s.ref?.t === 'place') { const p = placeById.get(s.ref.id); if (p) { p._was = p.status; p.status = 'down'; tour.failed = p; refreshCards(); } }
     renderDock();
     const go = () => {
-      if (s.move) { const f = courierGo(String(s.move.from), String(s.move.to), s.fail ? '#E5484D' : s.move.color); if (f) { flyTo(f.pos.clone(), fitZoom() * 3.4, 1); follow = { ref: { t: 'courier' }, pos: () => f.pos }; if (s.move.say) setTimeout(() => tour && say(() => f.pos.clone().setY(3.2), s.move.say, 3), 800); } return; }
+      if (s.move) { const f = courierGo(String(s.move.from), String(s.move.to), s.fail ? '#E5484D' : s.move.color); if (f) { flyTo(f.pos.clone(), fitZoom() * 3.4, 1); follow = { ref: { t: 'courier' }, pos: () => f.pos }; if (s.move.say) later(() => tour && say(() => f.pos.clone().setY(3.2), s.move.say, 3), 800); } return; }
       courierStop();
-      if (s.enter) { setTimeout(() => tour && enterBuilding(s.ref.id), 900); flyTo(new THREE.Vector3(placeById.get(s.ref.id).cx, 0, placeById.get(s.ref.id).cz), fitZoom() * 2.6, .9); return; }
+      if (s.enter) { later(() => tour && enterBuilding(s.ref.id), 900); flyTo(new THREE.Vector3(placeById.get(s.ref.id).cx, 0, placeById.get(s.ref.id).cz), fitZoom() * 2.6, .9); return; }
       if (s.ref.t === 'home') { follow = null; viewAll(1.4); return; }
       const p = posOfRef(s.ref); if (!p) return;
       flyTo(p.clone(), fitZoom() * (s.ref.t === 'place' ? 2.6 : 4.4), 1.2);
       if (isMover(s.ref)) follow = { ref: s.ref, pos: () => posOfRef(s.ref) };
-      setTimeout(() => tour && reactTo(s.ref), 900);
+      later(() => tour && reactTo(s.ref), 900);
     };
-    setTimeout(go, inside ? 400 : 0);
+    later(go, inside ? 400 : 0);
   }
   function stopTour(quiet) { if (!tour) return; if (tour.failed) { tour.failed.status = tour.failed._was; refreshCards(); } tour = null; follow = null; courierStop(); $('caption').hidden = true; app.classList.remove('touring'); if (inside) exitBuilding(); renderDock(); if (!quiet) viewAll(); emit('tour', false); }
   function stepTour(dt) {
@@ -73,7 +73,7 @@
   function feed(text, tone = 'brand') {
     const box = $('feed'), el = document.createElement('div'); el.className = 'c-toast ' + tone; el.textContent = text; box.prepend(el);
     while (box.children.length > 4) box.lastChild.remove();
-    setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4400);
+    later(() => el.classList.add('out'), 3800); later(() => el.remove(), 4400);
   }
   function stepReplay(dt) {
     if (!replay) return; const r = replay;
@@ -87,7 +87,7 @@
     }
     const d = new Date(now);
     $('clock').innerHTML = `<b>${esc(T.day(d))}</b><span>${d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })}</span>${r.sum ? `<em>+${esc(fmtNum(r.sum, 'currency'))}</em>` : ''}<i style="width:${r.k * 100}%"></i>`;
-    if (r.k >= 1) setTimeout(stopReplay, 1500), r.k = 1.0001;
+    if (r.k >= 1) later(stopReplay, 1500), r.k = 1.0001;
   }
 
   // ============================================================================ live data: update(patch) + optional sources
@@ -104,6 +104,7 @@
     if (patch.actions) { ACTS.length = 0; patch.actions.forEach((a, i) => ACTS.push({ sev: 'amber', ...a, id: String(a.id ?? 'a' + i) })); }
     if (patch.asOf) { W.meta.asOf = patch.asOf; renderAsOf(); }
     reindex(); applyNames();
+    for (const v of added.splice(Math.max(0, CAP_V - FLEET.length))) { console.warn('[city] vehicle capacity reached, reload to show', v.id); }
     for (const v of added) { addFleet(v); const p = placeById.get(v.place); const b = p?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } changed.add(v); }
     for (const v of changed) { if (!moving(v) && !v._f.bay) { const b = placeById.get(v.place)?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } } syncVehicle(v); }
     paintBays(); refreshCards(); refreshSigns(); renderDrawer();
@@ -248,9 +249,9 @@
   renderKpis(); renderDock(); renderAsOf(); startSources();
   for (const f of FLEET) writeCar(f); flushCars();
   ocam.zoom = fitZoom() * .7; ocam.updateProjectionMatrix(); viewAll(1.8);
-  setTimeout(() => ($('hint').style.opacity = 0), 9000);
+  later(() => ($('hint').style.opacity = 0), 9000);
   loop();
-  if (W.meta.autoplay === 'tour') setTimeout(startTour, 2500);
+  if (W.meta.autoplay === 'tour') later(startTour, 2500);
   const api = {
     world: W, open, close: closeDrawer, enter: enterBuilding, exit: exitBuilding, setMode, viewAll, rotateBy, zoomBy, update, tour: startTour, stopTour, next: () => nextStep(), replay: startReplay, stopReplay, video: setVideo, ride: startRide,
     on(ev, fn) { (listeners[ev] ??= []).push(fn); return () => { listeners[ev] = listeners[ev].filter((x) => x !== fn); }; },
@@ -259,10 +260,10 @@
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop
     sim(sec) { const mv = FLEET.filter((f) => f.r); let minD = 1e9, maxStuck = 0; const stuck = new Map(); for (let t = 0; t < sec; t += .05) { for (const f of mv) driveCar(f, .05, t); for (let i = 0; i < mv.length; i++) for (let j = i + 1; j < mv.length; j++) minD = Math.min(minD, mv[i].pos.distanceTo(mv[j].pos)); for (const f of mv) { const s = f.r.v < .05 ? (stuck.get(f) ?? 0) + .05 : 0; stuck.set(f, s); maxStuck = Math.max(maxStuck, s); } } return { minD: +minD.toFixed(2), maxStuck: +maxStuck.toFixed(1) }; },
     destroy() {
-      running = false; cancelAnimationFrame(raf); ro.disconnect(); for (const s of SRC_TIMERS) s.close();
+      running = false; alive = false; cancelAnimationFrame(raf); for (const id of TIMERS) clearTimeout(id); TIMERS.clear(); ro.disconnect(); for (const s of SRC_TIMERS) s.close();
       removeEventListener('keydown', onKeyDown); removeEventListener('keyup', onKeyUp); removeEventListener('blur', onBlur); removeEventListener('pointerup', onPUp); removeEventListener('pointermove', onPMove);
       controls.dispose(); for (const r of Object.values(ROOMS)) disposeRoom(r);
-      scene.traverse((o) => { if (o.isMesh) { o.geometry?.dispose(); } }); for (const t of disposables) t.dispose(); envTex.dispose(); pmrem.dispose(); renderer.dispose();
+      scene.traverse((o) => { if (o.isMesh) { o.geometry?.dispose(); } }); for (const t of disposables) t.dispose(); envTex.dispose(); pmrem.dispose(); renderer.dispose(); renderer.forceContextLoss();
       host.innerHTML = ''; host.classList.remove('cold', 'cold-night');
     },
   };

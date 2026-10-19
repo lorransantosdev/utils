@@ -6,6 +6,11 @@ export function createCity(host, worldIn, opts = {}) {
   const PAL = { ...(PALETTES[W.meta.palette] ?? PALETTES.cream), ...(W.meta.paletteOverrides ?? {}) };
   const BRAND = W.meta.brand.color, BRAND_DK = mix(BRAND, '#000000', .2), BRAND_TINT = mix(BRAND, '#FFFFFF', .92);
   const rnd = ((s) => () => (s = (s * 16807) % 2147483647) / 2147483647)(opts.seed ?? 20261019);
+  // every timer goes through later(), so destroy() can cancel them all
+  const TIMERS = new Set(); let alive = true;
+  const later = (fn, ms) => { const id = setTimeout(() => { TIMERS.delete(id); if (alive) fn(); }, ms); TIMERS.add(id); return id; };
+  // colours that reach HTML come from data: only accept real hex colours
+  const col = (c, fb = '#888888') => (/^#[0-9a-f]{3,8}$/i.test(String(c ?? '')) ? c : fb);
   const reduced = () => opts.reducedMotion ?? matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fmtNum = (v, f) => {
     if (typeof v !== 'number') return String(v ?? '–');
@@ -18,9 +23,9 @@ export function createCity(host, worldIn, opts = {}) {
 
   // ---------------------------------------------------------------- DOM shell (all inside host)
   host.classList.add('cold'); if (PAL.night) host.classList.add('cold-night');
-  host.style.setProperty('--brand', BRAND); host.style.setProperty('--brand-strong', BRAND_DK); host.style.setProperty('--brand-tint', BRAND_TINT);
+  host.style.setProperty('--brand', col(BRAND, '#F63B04')); host.style.setProperty('--brand-strong', BRAND_DK); host.style.setProperty('--brand-tint', BRAND_TINT);
   host.style.setProperty('--bg-a', PAL.bg[0]); host.style.setProperty('--bg-b', PAL.bg[1]);
-  const logoSvg = (w, h, fill = 'currentColor') => W.meta.brand.logo ? `<svg viewBox="${W.meta.brand.logo.viewBox ?? '0 0 24 24'}" width="${w}" height="${h}" aria-hidden="true"><path fill="${fill}" d="${esc(W.meta.brand.logo.d)}"/></svg>` : `<b style="font-size:${h}px">${esc((W.meta.brand.name ?? '·')[0])}</b>`;
+  const logoSvg = (w, h, fill = 'currentColor') => W.meta.brand.logo ? `<svg viewBox="${esc(W.meta.brand.logo.viewBox ?? '0 0 24 24')}" width="${w}" height="${h}" aria-hidden="true"><path fill="${fill}" d="${esc(W.meta.brand.logo.d)}"/></svg>` : `<b style="font-size:${h}px">${esc((W.meta.brand.name ?? '·')[0])}</b>`;
   host.innerHTML = `
   <div class="c-app">
     <div class="c-scene"></div><div class="c-tip"></div>

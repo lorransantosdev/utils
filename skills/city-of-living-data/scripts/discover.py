@@ -516,7 +516,7 @@ def to_draft(F, title, locale="en", purpose=None):
         deg[a] += 1; deg[b] += 1
     apps = sorted((s for s in F.services.values() if s["kind"] not in infra_kinds), key=lambda s: (-deg[s["name"]], s["name"]))
     infra = [s for s in F.services.values() if s["kind"] in infra_kinds]
-    keep, rest = apps[:10], apps[10:]
+    keep, rest = apps[:9], apps[9:]  # 9 apps + "more" + "platform" + the square = 12
     places = []
     for s in keep:
         what = f"{s['kind'].capitalize()} discovered in {s['evidence'][0] if s['evidence'] else 'the codebase'}."

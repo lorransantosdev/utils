@@ -14,7 +14,7 @@ vanilla : index.html + city-of-living-data.js/.css + world.json (any static host
 react / vue / angular : a component + the engine files + world.json. The app needs `three`
           (npm i three@^0.169) — the engine imports 'three' and 'three/addons/…'.
 """
-import argparse, json, pathlib, shutil, sys
+import argparse, html as H, json, pathlib, shutil, sys
 
 SKILL = pathlib.Path(__file__).resolve().parent.parent
 ENGINE_JS = SKILL / "assets/engine/city-of-living-data.js"
@@ -30,13 +30,14 @@ def main():
     ap.add_argument("--title", help="page title (default: meta.title)")
     a = ap.parse_args()
     world = json.loads(pathlib.Path(a.world).read_text(encoding="utf-8"))
-    title = a.title or world.get("meta", {}).get("pageTitle") or world.get("meta", {}).get("title", "City of Living Data")
+    title = H.escape(a.title or world.get("meta", {}).get("pageTitle") or world.get("meta", {}).get("title", "City of Living Data"))
+    lang = H.escape(world.get("meta", {}).get("locale", "en"))
     out = pathlib.Path(a.out)
     js, css = ENGINE_JS.read_text(encoding="utf-8"), ENGINE_CSS.read_text(encoding="utf-8")
 
     if a.target == "single":
         tpl = (SKILL / "assets/template/single.html").read_text(encoding="utf-8")
-        html = (tpl.replace("__TITLE__", title).replace("__CSS__", css)
+        html = (tpl.replace("__TITLE__", title).replace("__LANG__", lang).replace("__CSS__", css)
                    .replace("__WORLD__", json.dumps(world, ensure_ascii=False).replace("</", "<\\/"))
                    .replace("__ENGINE__", js))
         out.parent.mkdir(parents=True, exist_ok=True)

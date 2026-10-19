@@ -38,7 +38,9 @@ def main():
     hist_file = out / "history.csv"
     rows = list(csv.DictReader(open(hist_file))) if hist_file.exists() else []
     today = date.today().isoformat()
-    rows = [r for r in rows if r["date"] != today] + [{"date": today, "skill": s, "total": str(total[s])} for s in skills]
+    # one row per skill per day the number changed (no change = no row = no commit)
+    last = {r["skill"]: r["total"] for r in rows}
+    rows = [r for r in rows if r["date"] != today] + [{"date": today, "skill": s, "total": str(total[s])} for s in skills if last.get(s) != str(total[s])]
     with open(hist_file, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["date", "skill", "total"]); w.writeheader(); w.writerows(sorted(rows, key=lambda r: (r["date"], r["skill"])))
 
@@ -47,7 +49,7 @@ def main():
         past = [int(r["total"]) for r in rows if r["skill"] == s and r["date"] <= d]
         return total[s] - (past[-1] if past else 0)
 
-    lines = ["# Downloads", "", f"Updated {today} by `.github/workflows/skill-stats.yml`. A download = one download of the skill's zip from a GitHub Release.", "",
+    lines = ["# Downloads", "", "Counted daily by `.github/workflows/skill-stats.yml`. A download = one download of the skill's zip from a GitHub Release.", "",
              "| skill | total | last 7 days | last 30 days | by version |", "|---|---:|---:|---:|---|"]
     for s in skills:
         (out / f"{s}.json").write_text(json.dumps({"schemaVersion": 1, "label": "downloads", "message": f"{total[s]:,}", "color": "F63B04"}))

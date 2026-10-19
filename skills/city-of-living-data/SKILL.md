@@ -37,7 +37,7 @@ color, palette and language change.
 
 ## Ground rule: understand → design → generate
 Don't write world.json or touch code until the user confirmed **what you understood** (Phase 1)
-and **approved the design** (Phase 2). If the user is away, follow understand.md §"not around"
+and **approved the design** (Phase 2). If the user is away, follow understand.md §8 "When the user isn't around"
 and list every assumption.
 
 ## Phase 1 — Understand (references/understand.md)

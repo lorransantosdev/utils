@@ -13,7 +13,7 @@ import json, re, sys
 KINDS = {"shop", "office", "tower", "cluster", "park"}
 P_STATES = {"wander", "work", "idle", "wait", "drive", "away"}
 BLOCKS = {"stats", "bar", "alerts", "timeline", "kv", "funnel", "spark", "note", "chips", "list", "buttons"}
-REF_T = {"place", "vehicle", "person", "actions", "home", "action", "companion", "me", "pet"}
+REF_T = {"place", "vehicle", "person", "actions", "home", "action", "companion", "me", "pet", "prop"}
 SEV = {"red", "amber", "blue", "muted"}
 # personal data that must never be in a city that leaves your machine
 PII = [
@@ -95,7 +95,7 @@ def main():
         if v.get("driver") and str(v["driver"]) not in perid: err(f"{w}: unknown driver '{v['driver']}'")
         if not v.get("name"): warn(f"{w}: no name")
         if not re.match(r"^#[0-9a-fA-F]{6}$", str(v.get("color", "#000000"))): err(f"{w}: color must be #RRGGBB")
-        if v.get("alert") and v["alert"] not in SEV: err(f"{w}: alert must be red|amber|blue")
+        if v.get("alert") and v["alert"] not in SEV: err(f"{w}: alert must be red|amber|blue|muted")
         check_blocks((v.get("page") or {}).get("blocks"), w)
     for q in people:
         w = f"person '{q.get('id')}'"

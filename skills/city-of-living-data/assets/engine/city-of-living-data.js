@@ -115,6 +115,11 @@ export function createCity(host, worldIn, opts = {}) {
   const PAL = { ...(PALETTES[W.meta.palette] ?? PALETTES.cream), ...(W.meta.paletteOverrides ?? {}) };
   const BRAND = W.meta.brand.color, BRAND_DK = mix(BRAND, '#000000', .2), BRAND_TINT = mix(BRAND, '#FFFFFF', .92);
   const rnd = ((s) => () => (s = (s * 16807) % 2147483647) / 2147483647)(opts.seed ?? 20261019);
+  // every timer goes through later(), so destroy() can cancel them all
+  const TIMERS = new Set(); let alive = true;
+  const later = (fn, ms) => { const id = setTimeout(() => { TIMERS.delete(id); if (alive) fn(); }, ms); TIMERS.add(id); return id; };
+  // colours that reach HTML come from data: only accept real hex colours
+  const col = (c, fb = '#888888') => (/^#[0-9a-f]{3,8}$/i.test(String(c ?? '')) ? c : fb);
   const reduced = () => opts.reducedMotion ?? matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fmtNum = (v, f) => {
     if (typeof v !== 'number') return String(v ?? '–');
@@ -127,9 +132,9 @@ export function createCity(host, worldIn, opts = {}) {
 
   // ---------------------------------------------------------------- DOM shell (all inside host)
   host.classList.add('cold'); if (PAL.night) host.classList.add('cold-night');
-  host.style.setProperty('--brand', BRAND); host.style.setProperty('--brand-strong', BRAND_DK); host.style.setProperty('--brand-tint', BRAND_TINT);
+  host.style.setProperty('--brand', col(BRAND, '#F63B04')); host.style.setProperty('--brand-strong', BRAND_DK); host.style.setProperty('--brand-tint', BRAND_TINT);
   host.style.setProperty('--bg-a', PAL.bg[0]); host.style.setProperty('--bg-b', PAL.bg[1]);
-  const logoSvg = (w, h, fill = 'currentColor') => W.meta.brand.logo ? `<svg viewBox="${W.meta.brand.logo.viewBox ?? '0 0 24 24'}" width="${w}" height="${h}" aria-hidden="true"><path fill="${fill}" d="${esc(W.meta.brand.logo.d)}"/></svg>` : `<b style="font-size:${h}px">${esc((W.meta.brand.name ?? '·')[0])}</b>`;
+  const logoSvg = (w, h, fill = 'currentColor') => W.meta.brand.logo ? `<svg viewBox="${esc(W.meta.brand.logo.viewBox ?? '0 0 24 24')}" width="${w}" height="${h}" aria-hidden="true"><path fill="${fill}" d="${esc(W.meta.brand.logo.d)}"/></svg>` : `<b style="font-size:${h}px">${esc((W.meta.brand.name ?? '·')[0])}</b>`;
   host.innerHTML = `
   <div class="c-app">
     <div class="c-scene"></div><div class="c-tip"></div>
@@ -959,7 +964,7 @@ export function createCity(host, worldIn, opts = {}) {
   // ============================================================================ labels in the city: one card per place
   const CARDS = new Map();
   function markHtml(p, size = 30) {
-    const bg = p.kind === 'cluster' ? '#8D939B' : p.kind === 'tower' ? 'var(--ink)' : p.kind === 'park' ? 'var(--green)' : (p.color ?? 'var(--brand)');
+    const bg = p.kind === 'cluster' ? '#8D939B' : p.kind === 'tower' ? 'var(--ink)' : p.kind === 'park' ? 'var(--green)' : (p.color ? col(p.color) : 'var(--brand)');
     const inner = p.kind === 'tower' && W.meta.brand.logo ? logoSvg(Math.round(size * .6), Math.round(size * .3), '#fff') : p.kind === 'park' ? '♥' : esc(p.markShown);
     return `<span class="mk" style="background:${bg}${p.kind === 'tower' ? ';color:var(--paper)' : ''}">${inner}</span>`;
   }
@@ -972,7 +977,7 @@ export function createCity(host, worldIn, opts = {}) {
     return p.people.length ? `${p.people.length} ${T.people_} · ${act} ${T.active}` : (p.sub ?? '');
   }
   function cardHtml(p) {
-    const red = redCount(p), st = p.status && p.status !== 'ok' ? `<i class="st st-${p.status}"></i>` : '';
+    const red = redCount(p), st = ['warn', 'down', 'none'].includes(p.status) ? `<i class="st st-${p.status}"></i>` : '';
     return `${markHtml(p)}<div><b>${esc(p.shown)}</b><small>${esc(autoCard(p))}</small></div>${red ? `<span class="badge">${red}</span>` : ''}${st}`;
   }
   function buildCards() {
@@ -1090,8 +1095,8 @@ export function createCity(host, worldIn, opts = {}) {
   const refAttr = (r) => r ? `data-ref='${esc(JSON.stringify(r))}'` : '';
   const actRef = (a) => a.target ?? (a.place ? { t: 'place', id: a.place } : null);
   const actRow = (a) => { const r = actRef(a); return `<button class="row" ${refAttr(r)}><span class="sv ${a.sev}"></span><span class="grow"><b>${esc(a.title)}</b><small>${esc([a.place && placeById.get(a.place)?.shown, a.text].filter(Boolean).join(' · '))}</small></span>${r ? ic('chev') : ''}</button>`; };
-  const vehRow = (v) => { const st = stOf(v); return `<button class="row ${view?.t === 'vehicle' && view.id === v.id ? 'sel' : ''}" ${refAttr({ t: 'vehicle', id: v.id })}><span class="swatch" style="background:${v.color}"></span><span class="grow ell"><b>${esc(v.name)} ${v.colorName ? `<i>${esc(v.colorName)}</i>` : ''}</b><small>${esc(v.listSub ?? placeById.get(v.place)?.shown ?? '')}</small></span>${v.alert === 'red' ? '<span class="badge">!</span>' : ''}${pill(st)}</button>`; };
-  const perRow = (q) => `<button class="row" ${refAttr({ t: 'person', id: q.id })}><span class="dot" style="background:${roleOf(q).color}"></span><span class="grow ell"><b>${esc(q.shown)}</b><small>${esc(q.listSub ?? roleOf(q).label)}</small></span>${ic('chev')}</button>`;
+  const vehRow = (v) => { const st = stOf(v); return `<button class="row ${view?.t === 'vehicle' && view.id === v.id ? 'sel' : ''}" ${refAttr({ t: 'vehicle', id: v.id })}><span class="swatch" style="background:${col(v.color)}"></span><span class="grow ell"><b>${esc(v.name)} ${v.colorName ? `<i>${esc(v.colorName)}</i>` : ''}</b><small>${esc(v.listSub ?? placeById.get(v.place)?.shown ?? '')}</small></span>${v.alert === 'red' ? '<span class="badge">!</span>' : ''}${pill(st)}</button>`; };
+  const perRow = (q) => `<button class="row" ${refAttr({ t: 'person', id: q.id })}><span class="dot" style="background:${col(roleOf(q).color)}"></span><span class="grow ell"><b>${esc(q.shown)}</b><small>${esc(q.listSub ?? roleOf(q).label)}</small></span>${ic('chev')}</button>`;
   function stackBar(p) {
     const tot = Math.max(1, p.vehicles.length), by = (f) => p.vehicles.filter(f).length / tot * 100;
     return p.vehicles.length ? `<div class="stack"><i style="width:${by(moving)}%;background:var(--brand)"></i><i style="width:${by((v) => !moving(v) && stOf(v).tone === 'blue')}%;background:var(--blue)"></i><i style="width:${by((v) => !moving(v) && stOf(v).tone !== 'blue')}%;background:var(--green)"></i></div>` : '';
@@ -1109,7 +1114,7 @@ export function createCity(host, worldIn, opts = {}) {
         case 'funnel': { const mx = Math.max(1, ...b.items.map((i) => i.value)); return `<div class="blk">${h}${b.items.map((i) => `<div class="fn"><span>${esc(i.label)}</span><div class="bar ${i.tone ?? ''}"><i style="width:${Math.max(3, i.value / mx * 100)}%"></i></div><b>${esc(i.value)}</b></div>`).join('')}${b.note ? `<p class="muted">${esc(b.note)}</p>` : ''}</div>`; }
         case 'spark': { const mx = Math.max(1, ...b.items.map((i) => i.value)); return `<div class="blk">${h}<div class="spark">${b.items.map((i) => `<div><span style="height:${Math.max(4, i.value / mx * 46)}px"></span>${esc(i.label)} · ${esc(i.value)}</div>`).join('')}</div>${b.note ? `<p class="muted">${esc(b.note)}</p>` : ''}</div>`; }
         case 'note': return `<p class="muted">${esc(b.text)}</p>`;
-        case 'chips': return `<div class="blk">${h}<div class="ppl">${b.items.map((c) => `<span ${refAttr(c.ref)} class="${c.ref ? 'lnk' : ''}"><i style="background:${c.color ?? 'var(--muted)'}"></i>${esc(c.label)}</span>`).join('')}</div></div>`;
+        case 'chips': return `<div class="blk">${h}<div class="ppl">${b.items.map((c) => `<span ${refAttr(c.ref)} class="${c.ref ? 'lnk' : ''}"><i style="background:${col(c.color, 'var(--muted)')}"></i>${esc(c.label)}</span>`).join('')}</div></div>`;
         case 'list': {
           let items = b.of === 'places' ? PLACES.filter((p) => !p.auto) : b.of === 'actions' ? sortActs(ACTS) : b.of === 'vehicles' ? VEH : PEO;
           if (b.ids) items = b.ids.map((id) => (b.of === 'places' ? placeById : b.of === 'vehicles' ? vehById : b.of === 'people' ? perById : new Map(ACTS.map((a) => [a.id, a]))).get(String(id))).filter(Boolean);
@@ -1142,7 +1147,7 @@ export function createCity(host, worldIn, opts = {}) {
       const cap = p.capacity;
       return { crumbs: [crumbHome(), [null, p.shown]], html: `
         <div class="hero">${markHtml(p, 44)}<div><h2>${esc(p.shown)}</h2><p>${esc(p.page?.subtitle ?? p.sub ?? '')}</p></div></div>
-        ${p.enterable && !inside ? `<button class="btn enter" data-do="enter:${p.id}">${ic('enter')}${T.enterPlace}<small>${esc(p.enterHint ?? T.enterHint)}</small></button>` : ''}
+        ${p.enterable && !inside ? `<button class="btn enter" data-do="enter:${esc(p.id)}">${ic('enter')}${T.enterPlace}<small>${esc(p.enterHint ?? T.enterHint)}</small></button>` : ''}
         ${cap ? blocks([{ type: 'bar', label: T.capacity, value: p.vehicles.length, max: cap, text: `${p.vehicles.length} ${T.of} ${cap} ${T.used} · ${Math.max(0, cap - p.vehicles.length)} ${T.free}`, tone: 'blue' }]) : ''}
         ${blocks(p.page?.blocks)}
         ${tabs.length ? `<div class="blk"><div class="tabs">${tabs.map(([k, l, c]) => `<button data-tab="${k}" class="${tab === k ? 'on' : ''}">${l} <em>${c}</em></button>`).join('')}</div>${list}</div>` : ''}
@@ -1153,7 +1158,7 @@ export function createCity(host, worldIn, opts = {}) {
       const p = placeById.get(x.place), st = stOf(x), dr = x.driver && perById.get(x.driver), mv = moving(x);
       const crumbs = [crumbHome()]; if (p) crumbs.push([{ t: 'place', id: p.id }, p.shown]); crumbs.push([null, x.name]);
       return { crumbs, html: `
-        <div class="hero"><span class="mk sw" style="background:${x.color}"></span><div><h2>${esc(x.name)} ${x.colorName ? esc(x.colorName) : ''}</h2><p>${esc(x.page?.subtitle ?? p?.shown ?? '')}${x._f?.bay ? ` · ${T.bay} ${String(x._f.bay.n).padStart(2, '0')}` : ''}</p></div></div>
+        <div class="hero"><span class="mk sw" style="background:${col(x.color)}"></span><div><h2>${esc(x.name)} ${x.colorName ? esc(x.colorName) : ''}</h2><p>${esc(x.page?.subtitle ?? p?.shown ?? '')}${x._f?.bay ? ` · ${T.bay} ${String(x._f.bay.n).padStart(2, '0')}` : ''}</p></div></div>
         <div class="status">${pill(st)}<span class="sub">${esc(x.stateText ?? '')}</span></div>
         ${blocks(x.page?.blocks)}
         <div class="btns">${mv ? btn({ label: follow?.ref?.id === x.id ? T.unfollow : T.follow, icon: 'target', do: 'follow' }, 0) + btn({ label: T.ride, icon: 'car', do: 'ride:' + x.id }, 1) : ''}${dr ? btn({ label: T.seeDriver, icon: 'user', ref: { t: 'person', id: dr.id } }, mv ? 1 : 0) : ''}</div>` };
@@ -1164,14 +1169,14 @@ export function createCity(host, worldIn, opts = {}) {
       const crumbs = [crumbHome()]; if (p) crumbs.push([{ t: 'place', id: p.id }, p.shown]); crumbs.push([null, q.shown]);
       const said = q._said ?? (q.lines?.[0]);
       return { crumbs, html: `
-        <div class="hero"><span class="mk" style="background:${R.color}">${esc(q.shown[0] ?? '?')}</span><div><h2>${esc(q.shown)}</h2><p>${esc(q.page?.subtitle ?? [R.label, p?.shown].filter(Boolean).join(' · '))}</p></div></div>
+        <div class="hero"><span class="mk" style="background:${col(R.color)}">${esc(q.shown[0] ?? '?')}</span><div><h2>${esc(q.shown)}</h2><p>${esc(q.page?.subtitle ?? [R.label, p?.shown].filter(Boolean).join(' · '))}</p></div></div>
         ${said ? `<blockquote class="say">“${esc(said)}”</blockquote>` : ''}
         ${blocks(q.page?.blocks)}
         <div class="btns">${btn({ label: T.talk, icon: 'chat', do: 'talk' }, 0)}${veh ? btn({ label: T.seeVehicle, icon: 'car', ref: { t: 'vehicle', id: veh.id } }, 1) : ''}${p && p.kind !== 'park' ? btn({ label: T.seePlace, icon: 'building', ref: { t: 'place', id: p.id } }, 1) : ''}${q._pawn?.mode === 'wander' || (veh && moving(veh) && veh.driver === q.id) ? btn({ label: T.follow, icon: 'target', do: 'follow' }, 1) : ''}</div>` };
     },
-    companion(v) { const c = W.companions[v.i]; return { crumbs: [crumbHome(), [{ t: 'place', id: park.id }, park.shown], [null, c.name]], html: `<div class="hero"><span class="mk" style="background:${c.look?.shirt ?? 'var(--brand)'}">${esc(c.name[0])}</span><div><h2>${esc(c.name)}</h2><p>${esc(c.rel ?? '')}</p></div></div>${c._said ? `<blockquote class="say">“${esc(c._said)}”</blockquote>` : ''}${blocks(c.page?.blocks)}<div class="btns">${btn({ label: T.talk, icon: 'chat', do: 'talk' }, 0)}</div>` }; },
+    companion(v) { const c = W.companions[v.i]; return { crumbs: [crumbHome(), [{ t: 'place', id: park.id }, park.shown], [null, c.name]], html: `<div class="hero"><span class="mk" style="background:${col(c.look?.shirt, 'var(--brand)')}">${esc(c.name[0])}</span><div><h2>${esc(c.name)}</h2><p>${esc(c.rel ?? '')}</p></div></div>${c._said ? `<blockquote class="say">“${esc(c._said)}”</blockquote>` : ''}${blocks(c.page?.blocks)}<div class="btns">${btn({ label: T.talk, icon: 'chat', do: 'talk' }, 0)}</div>` }; },
     me() { return { crumbs: [crumbHome(), [null, W.player.name]], html: `<div class="hero"><span class="mk dark">${esc(W.player.name[0])}</span><div><h2>${esc(W.player.name)}</h2><p>${esc(W.player.role ?? T.you)}</p></div></div><div class="btns">${btn({ label: T.walk, icon: 'walk', do: 'mode:walk' }, 0)}${btn({ label: T.fly, icon: 'heli', do: 'heli' }, 1)}</div>` }; },
-    pet() { return { crumbs: [crumbHome(), [null, 'Scott']], html: `<div class="hero"><span class="mk" style="background:${W.pet.coat}">S</span><div><h2>${esc(W.pet.label ?? 'Scott')}</h2><p>${esc(W.pet.line ?? T.pet)}</p></div></div><div class="btns">${btn({ label: '🦴', do: 'pet' }, 0)}${btn({ label: T.walk, icon: 'walk', do: 'mode:walk' }, 1)}</div>` }; },
+    pet() { return { crumbs: [crumbHome(), [null, 'Scott']], html: `<div class="hero"><span class="mk" style="background:${col(W.pet.coat)}">S</span><div><h2>${esc(W.pet.label ?? 'Scott')}</h2><p>${esc(W.pet.line ?? T.pet)}</p></div></div><div class="btns">${btn({ label: '🦴', do: 'pet' }, 0)}${btn({ label: T.walk, icon: 'walk', do: 'mode:walk' }, 1)}</div>` }; },
     prop(v) {
       const p = v.place && placeById.get(v.place), crumbs = [crumbHome()]; if (p) crumbs.push([{ t: 'place', id: p.id }, p.shown]);
       const page = (title, sub, body = '', mk = ic('flag')) => ({ crumbs: [...crumbs, [null, title]], html: `<div class="hero"><span class="mk dark">${mk}</span><div><h2>${esc(title)}</h2><p>${esc(sub ?? '')}</p></div></div>${body}` });
@@ -1210,6 +1215,7 @@ export function createCity(host, worldIn, opts = {}) {
     if (r.t === 'action') { const a = ACTS.find((x) => x.id === r.id); return open(actRef(a) ?? { t: 'actions' }); }
     if (r.t === 'place' && !placeById.get(r.id)) return;
     if (r.t === 'place' && r.id !== view?.id) tab = null;
+    if (r.tab) tab = r.tab;
     view = r; follow = null;
     selV = r.t === 'vehicle' ? vehById.get(r.id)?._f?.i ?? -1 : r.t === 'person' && perById.get(r.id)?._pawn?.hidden ? vehById.get(perById.get(r.id).vehicle)?._f?.i ?? -1 : -1;
     const pw = pawnOfRef(r); selPawn = pw && !inside ? pw.id : -1;
@@ -1299,7 +1305,7 @@ export function createCity(host, worldIn, opts = {}) {
   host.querySelector('[data-zin]').onclick = () => zoomBy(1.4); host.querySelector('[data-zout]').onclick = () => zoomBy(1 / 1.4);
   host.querySelector('[data-rotl]').onclick = () => rotateBy(-Math.PI / 2); host.querySelector('[data-rotr]').onclick = () => rotateBy(Math.PI / 2);
   host.querySelector('[data-home]').onclick = () => { if (inside) return exitBuilding(); if (mode !== 'map') setMode('map'); if (view) closeDrawer(); else viewAll(); };
-  function setVideo(on) { videoMode = on; app.classList.toggle('video', on); renderDock(); setTimeout(() => { resize(); if (!inside) viewAll(.6); }, 60); }
+  function setVideo(on) { videoMode = on; app.classList.toggle('video', on); renderDock(); later(() => { resize(); if (!inside) viewAll(.6); }, 60); }
 
   // ============================================================================ hover + click in the city (and inside)
   const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
@@ -1418,14 +1424,14 @@ export function createCity(host, worldIn, opts = {}) {
   const keys = new Set();
   const typing = () => /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName ?? '');
   const MOVE = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyC', 'ShiftLeft', 'ShiftRight'];
-  const visible = () => host.isConnected && host.offsetParent !== null;
+  const visible = () => host.isConnected && host.getClientRects().length > 0;
   const onKeyDown = (e) => {
     if (typing() || !visible()) return;
     if (tour && (e.code === 'ArrowRight' || e.code === 'Space')) { e.preventDefault(); return nextStep(); }
     if (tour && e.code === 'ArrowLeft') { e.preventDefault(); tour.i = Math.max(-1, tour.i - 2); return nextStep(); }
     if (e.key === 'Escape') { if (tour || replay) { stopTour(); stopReplay(); return; } if (view) return closeDrawer(); if (inside) return exitBuilding(); if (mode !== 'map') return setMode('map'); }
     if (mode === 'map') {
-      if (!inside && e.code === 'KeyQ') rotateBy(-Math.PI / 2); if (!inside && e.code === 'KeyE') rotateBy(Math.PI / 2);
+      if (e.code === 'KeyQ') rotateBy(-Math.PI / 2); if (e.code === 'KeyE') rotateBy(Math.PI / 2);
       if (e.key === '+' || e.key === '=') zoomBy(1.4); if (e.key === '-') zoomBy(1 / 1.4);
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) { keys.add(e.code); e.preventDefault(); if (!inside) { follow = null; tween = null; } }
       return;
@@ -1648,7 +1654,7 @@ export function createCity(host, worldIn, opts = {}) {
     const items = sortActs(actionsOf(p)).slice(0, 6);
     const cork = plane(corkTex(items), 4.8, 3.2); cork.rotation.y = Math.PI / 2; cork.position.set(-room.W / 2 + .1, 2.3, z); room.g.add(cork);
     const B = new Batch(); B.rb(.1, 3.4, 5, '#8A6A4F', -room.W / 2 + .04, 2.3, z, .04); B.flush(room.g);
-    cork.userData.pick = { t: 'cork', uvPick: (uv) => { const a = noteAt(uv, items); return a ? { t: 'action', id: a.id } : { t: 'place', id: p.id, hint: T.board } } }; room.pick.push(cork);
+    cork.userData.pick = { t: 'cork', uvPick: (uv) => { const a = noteAt(uv, items); return a ? { t: 'action', id: a.id } : { t: 'place', id: p.id, hint: T.board, tab: 'todo' } } }; room.pick.push(cork);
   }
   const insidePawn = (room, o) => mkPawn(room.pawns, o);
   function desks(room, p, list, x0, z0, cols, dx = 3.6, dz = 3.2) {
@@ -1749,7 +1755,7 @@ export function createCity(host, worldIn, opts = {}) {
   }
   function disposeRoom(room) { IN.remove(room.g); room.g.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); const ms = Array.isArray(o.material) ? o.material : [o.material]; for (const m of ms) { m.map?.dispose(); m.dispose(); } } }); }
   const roomZoom = (room) => narrow() ? (VIEW * vw() / vh()) / ((room.W + room.D) * .74) : Math.min((VIEW * vw() / vh()) / (room.W * 1.55), VIEW / (room.D * 1.75)) * .95;
-  function veil(fn) { const f = $('veil'); if (reduced()) { fn(); return; } f.classList.add('on'); setTimeout(() => { fn(); requestAnimationFrame(() => f.classList.remove('on')); }, 280); }
+  function veil(fn) { const f = $('veil'); if (reduced()) { fn(); return; } f.classList.add('on'); later(() => { fn(); requestAnimationFrame(() => f.classList.remove('on')); }, 280); }
   function enterBuilding(id) {
     const p = placeById.get(id); if (!p?.enterable) return;
     if (inside?.place === p) return;
@@ -1766,7 +1772,7 @@ export function createCity(host, worldIn, opts = {}) {
       const off = new THREE.Vector3().setFromSphericalCoords(320, POLAR, AZ0);
       controls.target.copy(room.center); ocam.position.copy(room.center).add(off); ocam.zoom = roomZoom(room); ocam.updateProjectionMatrix();
       app.classList.add('inside'); renderDock(); hover = null; tip.classList.remove('show');
-      const hn = $('hint'); hn.textContent = T.hintInside; hn.style.opacity = 1; setTimeout(() => (hn.style.opacity = 0), 6000);
+      const hn = $('hint'); hn.textContent = T.hintInside; hn.style.opacity = 1; later(() => (hn.style.opacity = 0), 6000);
       emit('enter', id);
     });
   }
@@ -1852,16 +1858,16 @@ export function createCity(host, worldIn, opts = {}) {
     if (s.fail && s.ref?.t === 'place') { const p = placeById.get(s.ref.id); if (p) { p._was = p.status; p.status = 'down'; tour.failed = p; refreshCards(); } }
     renderDock();
     const go = () => {
-      if (s.move) { const f = courierGo(String(s.move.from), String(s.move.to), s.fail ? '#E5484D' : s.move.color); if (f) { flyTo(f.pos.clone(), fitZoom() * 3.4, 1); follow = { ref: { t: 'courier' }, pos: () => f.pos }; if (s.move.say) setTimeout(() => tour && say(() => f.pos.clone().setY(3.2), s.move.say, 3), 800); } return; }
+      if (s.move) { const f = courierGo(String(s.move.from), String(s.move.to), s.fail ? '#E5484D' : s.move.color); if (f) { flyTo(f.pos.clone(), fitZoom() * 3.4, 1); follow = { ref: { t: 'courier' }, pos: () => f.pos }; if (s.move.say) later(() => tour && say(() => f.pos.clone().setY(3.2), s.move.say, 3), 800); } return; }
       courierStop();
-      if (s.enter) { setTimeout(() => tour && enterBuilding(s.ref.id), 900); flyTo(new THREE.Vector3(placeById.get(s.ref.id).cx, 0, placeById.get(s.ref.id).cz), fitZoom() * 2.6, .9); return; }
+      if (s.enter) { later(() => tour && enterBuilding(s.ref.id), 900); flyTo(new THREE.Vector3(placeById.get(s.ref.id).cx, 0, placeById.get(s.ref.id).cz), fitZoom() * 2.6, .9); return; }
       if (s.ref.t === 'home') { follow = null; viewAll(1.4); return; }
       const p = posOfRef(s.ref); if (!p) return;
       flyTo(p.clone(), fitZoom() * (s.ref.t === 'place' ? 2.6 : 4.4), 1.2);
       if (isMover(s.ref)) follow = { ref: s.ref, pos: () => posOfRef(s.ref) };
-      setTimeout(() => tour && reactTo(s.ref), 900);
+      later(() => tour && reactTo(s.ref), 900);
     };
-    setTimeout(go, inside ? 400 : 0);
+    later(go, inside ? 400 : 0);
   }
   function stopTour(quiet) { if (!tour) return; if (tour.failed) { tour.failed.status = tour.failed._was; refreshCards(); } tour = null; follow = null; courierStop(); $('caption').hidden = true; app.classList.remove('touring'); if (inside) exitBuilding(); renderDock(); if (!quiet) viewAll(); emit('tour', false); }
   function stepTour(dt) {
@@ -1891,7 +1897,7 @@ export function createCity(host, worldIn, opts = {}) {
   function feed(text, tone = 'brand') {
     const box = $('feed'), el = document.createElement('div'); el.className = 'c-toast ' + tone; el.textContent = text; box.prepend(el);
     while (box.children.length > 4) box.lastChild.remove();
-    setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4400);
+    later(() => el.classList.add('out'), 3800); later(() => el.remove(), 4400);
   }
   function stepReplay(dt) {
     if (!replay) return; const r = replay;
@@ -1905,7 +1911,7 @@ export function createCity(host, worldIn, opts = {}) {
     }
     const d = new Date(now);
     $('clock').innerHTML = `<b>${esc(T.day(d))}</b><span>${d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })}</span>${r.sum ? `<em>+${esc(fmtNum(r.sum, 'currency'))}</em>` : ''}<i style="width:${r.k * 100}%"></i>`;
-    if (r.k >= 1) setTimeout(stopReplay, 1500), r.k = 1.0001;
+    if (r.k >= 1) later(stopReplay, 1500), r.k = 1.0001;
   }
 
   // ============================================================================ live data: update(patch) + optional sources
@@ -1922,6 +1928,7 @@ export function createCity(host, worldIn, opts = {}) {
     if (patch.actions) { ACTS.length = 0; patch.actions.forEach((a, i) => ACTS.push({ sev: 'amber', ...a, id: String(a.id ?? 'a' + i) })); }
     if (patch.asOf) { W.meta.asOf = patch.asOf; renderAsOf(); }
     reindex(); applyNames();
+    for (const v of added.splice(Math.max(0, CAP_V - FLEET.length))) { console.warn('[city] vehicle capacity reached, reload to show', v.id); }
     for (const v of added) { addFleet(v); const p = placeById.get(v.place); const b = p?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } changed.add(v); }
     for (const v of changed) { if (!moving(v) && !v._f.bay) { const b = placeById.get(v.place)?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } } syncVehicle(v); }
     paintBays(); refreshCards(); refreshSigns(); renderDrawer();
@@ -2066,9 +2073,9 @@ export function createCity(host, worldIn, opts = {}) {
   renderKpis(); renderDock(); renderAsOf(); startSources();
   for (const f of FLEET) writeCar(f); flushCars();
   ocam.zoom = fitZoom() * .7; ocam.updateProjectionMatrix(); viewAll(1.8);
-  setTimeout(() => ($('hint').style.opacity = 0), 9000);
+  later(() => ($('hint').style.opacity = 0), 9000);
   loop();
-  if (W.meta.autoplay === 'tour') setTimeout(startTour, 2500);
+  if (W.meta.autoplay === 'tour') later(startTour, 2500);
   const api = {
     world: W, open, close: closeDrawer, enter: enterBuilding, exit: exitBuilding, setMode, viewAll, rotateBy, zoomBy, update, tour: startTour, stopTour, next: () => nextStep(), replay: startReplay, stopReplay, video: setVideo, ride: startRide,
     on(ev, fn) { (listeners[ev] ??= []).push(fn); return () => { listeners[ev] = listeners[ev].filter((x) => x !== fn); }; },
@@ -2077,10 +2084,10 @@ export function createCity(host, worldIn, opts = {}) {
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop
     sim(sec) { const mv = FLEET.filter((f) => f.r); let minD = 1e9, maxStuck = 0; const stuck = new Map(); for (let t = 0; t < sec; t += .05) { for (const f of mv) driveCar(f, .05, t); for (let i = 0; i < mv.length; i++) for (let j = i + 1; j < mv.length; j++) minD = Math.min(minD, mv[i].pos.distanceTo(mv[j].pos)); for (const f of mv) { const s = f.r.v < .05 ? (stuck.get(f) ?? 0) + .05 : 0; stuck.set(f, s); maxStuck = Math.max(maxStuck, s); } } return { minD: +minD.toFixed(2), maxStuck: +maxStuck.toFixed(1) }; },
     destroy() {
-      running = false; cancelAnimationFrame(raf); ro.disconnect(); for (const s of SRC_TIMERS) s.close();
+      running = false; alive = false; cancelAnimationFrame(raf); for (const id of TIMERS) clearTimeout(id); TIMERS.clear(); ro.disconnect(); for (const s of SRC_TIMERS) s.close();
       removeEventListener('keydown', onKeyDown); removeEventListener('keyup', onKeyUp); removeEventListener('blur', onBlur); removeEventListener('pointerup', onPUp); removeEventListener('pointermove', onPMove);
       controls.dispose(); for (const r of Object.values(ROOMS)) disposeRoom(r);
-      scene.traverse((o) => { if (o.isMesh) { o.geometry?.dispose(); } }); for (const t of disposables) t.dispose(); envTex.dispose(); pmrem.dispose(); renderer.dispose();
+      scene.traverse((o) => { if (o.isMesh) { o.geometry?.dispose(); } }); for (const t of disposables) t.dispose(); envTex.dispose(); pmrem.dispose(); renderer.dispose(); renderer.forceContextLoss();
       host.innerHTML = ''; host.classList.remove('cold', 'cold-night');
     },
   };

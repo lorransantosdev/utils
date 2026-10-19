@@ -2,7 +2,8 @@
 export type Ref =
   | { t: 'home' } | { t: 'actions' }
   | { t: 'place' | 'vehicle' | 'person' | 'action'; id: string }
-  | { t: 'companion'; i: number } | { t: 'me' } | { t: 'pet' };
+  | { t: 'companion'; i: number } | { t: 'me' } | { t: 'pet' }
+  | { t: 'prop'; k: 'heli' | 'vault' | 'ghost'; place?: string };
 export interface CityOptions { seed?: number; reducedMotion?: boolean; preserveDrawingBuffer?: boolean }
 export interface CityPatch { places?: any[]; vehicles?: any[]; people?: any[]; kpis?: any[]; actions?: any[]; asOf?: string }
 export interface CityApi {

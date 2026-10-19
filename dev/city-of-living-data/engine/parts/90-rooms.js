@@ -135,7 +135,7 @@
     const items = sortActs(actionsOf(p)).slice(0, 6);
     const cork = plane(corkTex(items), 4.8, 3.2); cork.rotation.y = Math.PI / 2; cork.position.set(-room.W / 2 + .1, 2.3, z); room.g.add(cork);
     const B = new Batch(); B.rb(.1, 3.4, 5, '#8A6A4F', -room.W / 2 + .04, 2.3, z, .04); B.flush(room.g);
-    cork.userData.pick = { t: 'cork', uvPick: (uv) => { const a = noteAt(uv, items); return a ? { t: 'action', id: a.id } : { t: 'place', id: p.id, hint: T.board } } }; room.pick.push(cork);
+    cork.userData.pick = { t: 'cork', uvPick: (uv) => { const a = noteAt(uv, items); return a ? { t: 'action', id: a.id } : { t: 'place', id: p.id, hint: T.board, tab: 'todo' } } }; room.pick.push(cork);
   }
   const insidePawn = (room, o) => mkPawn(room.pawns, o);
   function desks(room, p, list, x0, z0, cols, dx = 3.6, dz = 3.2) {
@@ -236,7 +236,7 @@
   }
   function disposeRoom(room) { IN.remove(room.g); room.g.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); const ms = Array.isArray(o.material) ? o.material : [o.material]; for (const m of ms) { m.map?.dispose(); m.dispose(); } } }); }
   const roomZoom = (room) => narrow() ? (VIEW * vw() / vh()) / ((room.W + room.D) * .74) : Math.min((VIEW * vw() / vh()) / (room.W * 1.55), VIEW / (room.D * 1.75)) * .95;
-  function veil(fn) { const f = $('veil'); if (reduced()) { fn(); return; } f.classList.add('on'); setTimeout(() => { fn(); requestAnimationFrame(() => f.classList.remove('on')); }, 280); }
+  function veil(fn) { const f = $('veil'); if (reduced()) { fn(); return; } f.classList.add('on'); later(() => { fn(); requestAnimationFrame(() => f.classList.remove('on')); }, 280); }
   function enterBuilding(id) {
     const p = placeById.get(id); if (!p?.enterable) return;
     if (inside?.place === p) return;
@@ -253,7 +253,7 @@
       const off = new THREE.Vector3().setFromSphericalCoords(320, POLAR, AZ0);
       controls.target.copy(room.center); ocam.position.copy(room.center).add(off); ocam.zoom = roomZoom(room); ocam.updateProjectionMatrix();
       app.classList.add('inside'); renderDock(); hover = null; tip.classList.remove('show');
-      const hn = $('hint'); hn.textContent = T.hintInside; hn.style.opacity = 1; setTimeout(() => (hn.style.opacity = 0), 6000);
+      const hn = $('hint'); hn.textContent = T.hintInside; hn.style.opacity = 1; later(() => (hn.style.opacity = 0), 6000);
       emit('enter', id);
     });
   }

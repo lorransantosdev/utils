@@ -47,6 +47,8 @@ changes. Full examples: `assets/examples/rental.world.json` (monitor a business)
 |---|---|---|
 | `title` | `City of Living Data` | brand box title, home title fallback, tour first step |
 | `subtitle` | – | brand box second line |
+| `purpose` | – | `monitor` · `explain` · `both` — informational (the goal chosen in Phase 1; `validate.py` relaxes the hide-names warning for `explain`) |
+| `pageTitle` | `title` | the browser tab title used by `scaffold.py` |
 | `locale` | `en` | `pt-BR` or `en` UI strings (any `pt*` → Portuguese); also number/date formatting |
 | `currency` | BRL for pt, else USD | used by `format: currency` |
 | `palette` | `cream` | `cream` · `mint` · `sunset` · `night` (palettes.md) |
@@ -103,7 +105,7 @@ Per kind:
 | kind | model | uses |
 |---|---|---|
 | `shop` | low building + lot with bays + gate | `capacity` (bays, 2–22; default = vehicle count), `inbox: { count, label, ref }` (paper stack on the counter), `workshopText` (workshop door tooltip) |
-| `office` | 1–8 floor block, brand bands, small lot if it has vehicles | `floors`, `capacity` |
+| `office` | 1–8 floor block, brand bands, small lot if it has vehicles; inside: desks, screen, meeting table | `floors`, `capacity`, `meetingText` (meeting table tooltip) |
 | `tower` | lobby + `floors` (1–24), crown with logo, dashed next floor, helipad (first tower), optional vault | `floors`, `vault` (gold bars, number), `vaultTitle`, `vaultText`, `vaultBlocks`, `nextFloor` (text; `false` hides the dashed floor), `floorBlocks`, `meetingText` |
 | `cluster` | row of six small houses + sign, 1-row lot if it has vehicles | members are its `people`; `grid` (array of booleans for the HQ wall, default: `done` or active), `gridNote` |
 | `park` | square with fountain, flowers, benches | where the player, Scott and companions start |
@@ -222,9 +224,9 @@ Icons: `plus minus x rotl rotr home chev map walk heli alert check clock flag ey
 ## 12. player, pet, companions
 
 ```jsonc
-"player": { "name": "Lorran", "role": "admin", "label": "Lorran (you)", "shirt": "#151515", "skin": "#D4A07A", "hair": "#2A1C14", "style": "short", "cap": "#F63B04", "lines": ["Let's see the network"] },
+"player": { "name": "You", "role": "admin", "label": "You", "shirt": "#151515", "skin": "#D4A07A", "hair": "#2A1C14", "style": "short", "cap": "#F63B04", "lines": ["Let's see the network"] },
 "pet": { "label": "Scott", "coat": "#B9753F", "line": "Goes wherever you go.", "bark": "Woof!" },
-"companions": [{ "name": "Rapha", "rel": "sister", "greet": "Hi!", "lines": ["…"], "look": { "shirt": "#F59E0B", "style": "long" }, "page": { "blocks": [] } }]
+"companions": [{ "name": "Mia", "rel": "sister", "greet": "Hi!", "lines": ["…"], "look": { "shirt": "#F59E0B", "style": "long" }, "page": { "blocks": [] } }]
 ```
 **Scott is in every city and is always named Scott** — a tribute to the author's dog. `pet` only
 changes the tag, coat, line and bark. Companions walk slowly in the park, carry name tags and greet

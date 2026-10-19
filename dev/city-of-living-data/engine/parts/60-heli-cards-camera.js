@@ -23,7 +23,7 @@
   // ============================================================================ labels in the city: one card per place
   const CARDS = new Map();
   function markHtml(p, size = 30) {
-    const bg = p.kind === 'cluster' ? '#8D939B' : p.kind === 'tower' ? 'var(--ink)' : p.kind === 'park' ? 'var(--green)' : (p.color ?? 'var(--brand)');
+    const bg = p.kind === 'cluster' ? '#8D939B' : p.kind === 'tower' ? 'var(--ink)' : p.kind === 'park' ? 'var(--green)' : (p.color ? col(p.color) : 'var(--brand)');
     const inner = p.kind === 'tower' && W.meta.brand.logo ? logoSvg(Math.round(size * .6), Math.round(size * .3), '#fff') : p.kind === 'park' ? '♥' : esc(p.markShown);
     return `<span class="mk" style="background:${bg}${p.kind === 'tower' ? ';color:var(--paper)' : ''}">${inner}</span>`;
   }
@@ -36,7 +36,7 @@
     return p.people.length ? `${p.people.length} ${T.people_} · ${act} ${T.active}` : (p.sub ?? '');
   }
   function cardHtml(p) {
-    const red = redCount(p), st = p.status && p.status !== 'ok' ? `<i class="st st-${p.status}"></i>` : '';
+    const red = redCount(p), st = ['warn', 'down', 'none'].includes(p.status) ? `<i class="st st-${p.status}"></i>` : '';
     return `${markHtml(p)}<div><b>${esc(p.shown)}</b><small>${esc(autoCard(p))}</small></div>${red ? `<span class="badge">${red}</span>` : ''}${st}`;
   }
   function buildCards() {

@@ -10,7 +10,7 @@ internal APIs, and a public copy must not keep live connections to production.
 
 Then hide private names (`private: true` places/people get an alias) or remove them before sharing.
 """
-import argparse, json, re, sys, urllib.request
+import argparse, json, re, sys, urllib.parse, urllib.request
 from datetime import datetime, timezone
 
 
@@ -66,7 +66,7 @@ def main():
         t = s.get("type")
         try:
             if t == "static": rows = s.get("rows") or s.get("patch")
-            elif t == "supabase": rows = fetch(f"{s['url'].rstrip('/')}/rest/v1/{s['table']}?select={s.get('select', '*')}", {"apikey": s["anonKey"], "Authorization": f"Bearer {s['anonKey']}", **headers})
+            elif t == "supabase": rows = fetch(f"{s['url'].rstrip('/')}/rest/v1/{s['table']}?select={urllib.parse.quote(s.get('select', '*'))}", {"apikey": s["anonKey"], "Authorization": f"Bearer {s['anonKey']}", **headers})
             elif t == "http": rows = fetch(s["url"], {**(s.get("headers") or {}), **headers})
             else:
                 print(f"  skip {s.get('id')}: {t} is a stream — snapshot its HTTP twin instead"); continue
@@ -74,7 +74,8 @@ def main():
         except Exception as e:
             sys.exit(f"  fail {s.get('id')}: {e}")
     W.pop("data", None)
-    W.setdefault("meta", {}).setdefault("asOf", datetime.now(timezone.utc).isoformat(timespec="seconds"))
+    if not any(isinstance(s.get("rows") or s.get("patch"), dict) and (s.get("rows") or s.get("patch")).get("asOf") for s in sources):
+        W.setdefault("meta", {})["asOf"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     json.dump(W, open(a.out, "w", encoding="utf-8"), ensure_ascii=False)
     print(f"wrote {a.out} — run validate.py on it before sharing")
 

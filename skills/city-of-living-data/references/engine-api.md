@@ -1,8 +1,8 @@
 # Engine API
 
 `assets/engine/city-of-living-data.js` is one ES module that needs only `three@0.169` (import map
-for `three` and `three/addons/`). `city-of-living-data.css` styles the HUD; everything is scoped
-under `.cold`, so it can live inside any app.
+for `three` and `three/addons/`). `city-of-living-data.css` styles the HUD; the host gets the class `cold` and every
+selector is prefixed (`.cold …`, `.c-…`), so it can live inside any app.
 
 ```js
 import { createCity, VERSION } from './city-of-living-data.js';

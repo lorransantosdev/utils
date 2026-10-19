@@ -22,7 +22,7 @@ const [W, H] = String(args.size ?? '1440x900').split('x').map(Number);
 const out = args.out ?? 'shots'; fs.mkdirSync(out, { recursive: true });
 const steps = String(args.steps ?? 'map,home,tour').split(',');
 const launch = { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--allow-file-access-from-files'] };
-if (args.chromium) launch.executablePath = args.chromium; else if (fs.existsSync('/opt/pw-browsers/chromium')) launch.executablePath = '/opt/pw-browsers/chromium';
+if (args.chromium) launch.executablePath = args.chromium; // otherwise Playwright's own Chromium
 const browser = await pw.chromium.launch(launch);
 const page = await browser.newPage({ viewport: { width: W, height: H } });
 await page.emulateMedia({ reducedMotion: 'reduce' }); // instant camera moves = deterministic shots
@@ -31,7 +31,7 @@ if (args.three) await page.route(/cdn\.jsdelivr\.net\/npm\/three@[^/]+\/(.*)$/, 
 for (const m of [].concat(args.mock ?? [])) { const [u, f] = String(m).split('='); await page.route((url) => url.pathname === u || url.href.includes(u), (r) => r.fulfill({ path: path.resolve(f), contentType: 'application/json' })); }
 for (const m of [].concat(args.fail ?? [])) await page.route((url) => url.href.includes(String(m)), (r) => r.fulfill({ status: 503, body: 'down' }));
 await page.goto(args.url ?? 'file://' + path.resolve(args.page));
-await page.waitForFunction(() => window.city, null, { timeout: 30000 }); await page.waitForTimeout(+(args.wait ?? 6000));
+await page.waitForFunction(() => window.city?.open, null, { timeout: 30000 }); await page.waitForTimeout(+(args.wait ?? 6000));
 
 if (args.probe) { // every visible thing should answer a pick; this lists what answers, by kind
   const res = await page.evaluate(([w, h]) => { const k = {}; for (let y = 80; y < h - 80; y += 8) for (let x = 16; x < w - 16; x += 8) { const p = city.pick(x, y), key = p ? p.t + (p.k ? ':' + p.k : '') : '(nothing)'; (k[key] ??= { n: 0, ex: p?.tip }).n++; } return k; }, [W, H]);

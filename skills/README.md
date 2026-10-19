@@ -21,9 +21,9 @@ Download numbers per version and per week: [STATS.md](./STATS.md).
 3. Write the instructions. Put long material in `references/`, scripts in `scripts/`, files the
    skill copies or fills in `assets/`. Keep `SKILL.md` short enough to read in one go.
 4. Add it to the table above and to `.claude-plugin/marketplace.json` (one entry in `plugins`).
-5. Publish a version: on GitHub, **Releases → Draft a new release**, tag `<new-skill>-v1.0.0`,
-   publish. The **Release a skill** workflow zips the folder and attaches `<new-skill>.zip`;
-   downloads start being counted the next day.
+5. Publish a version: **Actions → Release a skill → Run workflow**, tag `<new-skill>-v1.0.0`
+   (or create a release with that tag). The workflow zips the folder, creates the release and
+   attaches `<new-skill>.zip`; downloads start being counted the next day.
 
 ## How downloads are counted
 

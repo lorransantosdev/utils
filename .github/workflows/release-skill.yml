@@ -1,6 +1,6 @@
-# Attaches a skill's zip to a release.
-# Create a release whose tag is <skill>-v<version> (e.g. city-of-living-data-v2.1.0) in
-# Releases → Draft a new release; this workflow zips skills/<skill>/ and attaches it.
+# Publishes a skill as a downloadable zip on a GitHub Release.
+# Either: Releases → Draft a new release with tag <skill>-v<version> (e.g. city-of-living-data-v2.1.0),
+# or: Actions → "Release a skill" → Run workflow with that tag (the release is created for you).
 name: Release a skill
 on:
   release:
@@ -17,14 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
       - name: Zip the skill and attach it
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
-          SKILL="${TAG%-v*}"
+          SKILL="${TAG%-v*}"; VERSION="${TAG##*-v}"
           test -f "skills/$SKILL/SKILL.md" || { echo "no skills/$SKILL/SKILL.md for tag $TAG"; exit 1; }
           cd skills && zip -qr "../$SKILL.zip" "$SKILL" -x "$SKILL/docs/*" && cd ..
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "${GITHUB_SHA}" --title "$SKILL $VERSION" \
+              --notes "Download **$SKILL.zip** below, then in Claude: Customize → Skills → + → Upload a skill. Claude Code: \`/plugin marketplace add ${GITHUB_REPOSITORY}\` then \`/plugin install $SKILL@lorran-utils\`. Details: skills/$SKILL/README.md"
+          fi
           gh release upload "$TAG" "$SKILL.zip" --clobber

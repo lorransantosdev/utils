@@ -35,7 +35,7 @@
 .c-app { position: absolute; inset: 0; container: cold / size; }
 .c-app.video { inset: 0 auto; left: 50%; height: 100%; width: auto; max-width: 100%; aspect-ratio: 9 / 16; transform: translateX(-50%); box-shadow: 0 0 0 100vmax rgba(0,0,0,.72); }
 .c-scene { position: absolute; inset: 0; z-index: 0; isolation: isolate; }
-.c-scene canvas { display: block; outline: none; touch-action: none; }
+.c-scene canvas { display: block; outline: none; touch-action: none; width: 100%; height: 100%; }
 .c-labels { position: absolute; inset: 0; pointer-events: none; }
 .c-glass { background: var(--glass); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); border: 1px solid var(--glass-line); box-shadow: var(--shadow); border-radius: 16px; }
 

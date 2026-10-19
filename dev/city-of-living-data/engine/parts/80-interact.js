@@ -37,7 +37,7 @@
   const BUBBLES = [];
   function say(posFn, text, dur = 3.6, parent = root) {
     if (!text) return;
-    const el = document.createElement('div'); el.className = 'c-say'; el.textContent = text;
+    const el = document.createElement('div'), tx = document.createElement('div'); tx.className = 'c-say'; tx.textContent = text; el.appendChild(tx); // the pop animation lives on the inner box, so it never fights the label's own transform
     const o = new CSS2DObject(el); parent.add(o);
     const b = { o, el, posFn, t: dur, parent }; BUBBLES.push(b);
     while (BUBBLES.length > 4) killBubble(BUBBLES[0]);

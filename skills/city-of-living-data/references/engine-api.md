@@ -20,6 +20,7 @@ night palette) to it.
 | `seed` | `20261019` | random seed: tree placement, skin/hair, traffic start. Same seed = same city |
 | `reducedMotion` | from `prefers-reduced-motion` | `true` = instant camera moves, no fades (used by screenshot tests) |
 | `preserveDrawingBuffer` | `false` | set `true` to read pixels from the canvas (thumbnails) |
+| `pixelRatio` | `min(devicePixelRatio, 2)` | render resolution; lower it on weak devices or raise it for video capture |
 
 ## Returned object
 
@@ -32,13 +33,15 @@ night palette) to it.
 | `setMode('map' \| 'walk' \| 'heli')` | camera mode. Ride-along is started with the `ride:<vehicleId>` action from a vehicle page |
 | `viewAll(sec?)` | frame the whole slab |
 | `rotateBy(rad)` / `zoomBy(factor)` | animated camera moves (Q/E use ±π/2) |
+| `fly({ x, z, zoom \| zoomFit, az \| daz, dur })` | scripted camera move: target point, zoom (absolute, or `zoomFit` × the fit-all zoom), azimuth (absolute, or `daz` from the default iso angle), seconds (`0` = cut). Missing fields keep their current value — handy for promo videos |
+| `walkTo(x, z)` | switch to walk mode and walk the player to a point (same as clicking the ground) |
 | `update(patch)` | live data: merge `places`, `vehicles`, `people` by id; replace `kpis`, `actions`; set `asOf` (see below) |
 | `tour(steps?, label?)` | start the presentation, or play any list of steps (a journey) |
 | `stopTour()` / `next()` | stop / jump to the next step |
 | `replay()` / `stopReplay()` | play `world.timeline` / stop and restore |
 | `video(on)` | 9:16 frame for recording vertical videos |
 | `on(event, fn)` | subscribe; returns an unsubscribe function |
-| `state()` | `{ mode, view, inside, touring, replaying, calls, tris }` |
+| `state()` | `{ mode, view, inside, touring, replaying, calls, tris, me: [x, z] }` |
 | `pick(x, y)` | what is under a point (pixels, relative to the canvas) + its tooltip text — for tests |
 | `sim(seconds)` | run the traffic for N seconds off-screen; returns `{ minD, maxStuck }` (closest two cars, longest stop) |
 | `destroy()` | stop the loop, remove listeners and sources, dispose GPU memory, empty the host |

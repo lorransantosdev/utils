@@ -163,7 +163,7 @@
 
   // ============================================================================ loop
   function resize() {
-    const w = vw(), h = vh(); renderer.setSize(w, h, false); labels.setSize(w, h);
+    const w = vw(), h = vh(); renderer.setSize(w, h); labels.setSize(w, h);
     const a = w / h; Object.assign(ocam, { left: -VIEW * a / 2, right: VIEW * a / 2, top: VIEW / 2, bottom: -VIEW / 2 }); ocam.updateProjectionMatrix();
     pcam.aspect = a; pcam.updateProjectionMatrix();
   }
@@ -265,6 +265,11 @@
   const api = {
     world: W, open, close: closeDrawer, enter: enterBuilding, exit: exitBuilding, setMode, viewAll, rotateBy, zoomBy, update, tour: startTour, stopTour, next: () => nextStep(), replay: startReplay, stopReplay, video: setVideo, ride: startRide,
     on(ev, fn) { (listeners[ev] ??= []).push(fn); return () => { listeners[ev] = listeners[ev].filter((x) => x !== fn); }; },
+    // scripted camera (videos, embeds): fly({ x, z, zoomFit, zoom, az, daz, dur }) — zoomFit is relative to "see everything"
+    fly(o = {}) { const off = ocam.position.clone().sub(controls.target), cur = new THREE.Spherical().setFromVector3(off); follow = null;
+      const az = o.az ?? (o.daz != null ? AZ0 + o.daz : cur.theta), z = o.zoom ?? (o.zoomFit != null ? fitZoom() * o.zoomFit : ocam.zoom);
+      flyTo(new THREE.Vector3(o.x ?? controls.target.x, 0, o.z ?? controls.target.z), z, o.dur ?? 1.2, az); },
+    walkTo: (x, z) => { if (mode !== 'walk') setMode('walk'); walkGoTo(x, z); },
     pick: (x, y) => { const r = canvas.getBoundingClientRect(); const h = pickAt({ clientX: r.left + x, clientY: r.top + y }); return h ? { ...h, tip: tipText(h).replace(/<[^>]+>/g, ' · ') } : null; },
     state: () => ({ mode, view, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop

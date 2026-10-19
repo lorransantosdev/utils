@@ -1,28 +1,30 @@
-# Publishes a skill as a downloadable zip.
-# Push a tag named <skill>-v<version>, e.g.:  git tag city-of-living-data-v2.0.0 && git push --tags
+# Attaches a skill's zip to a release.
+# Create a release whose tag is <skill>-v<version> (e.g. city-of-living-data-v2.1.0) in
+# Releases → Draft a new release; this workflow zips skills/<skill>/ and attaches it.
 name: Release a skill
 on:
-  push:
-    tags: ['*-v*']
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. city-of-living-data-v2.0.0
+        required: true
 permissions:
   contents: write
 jobs:
-  release:
+  zip:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build the zip
-        id: zip
-        run: |
-          TAG="${GITHUB_REF_NAME}"
-          SKILL="${TAG%-v*}"; VERSION="${TAG##*-v}"
-          test -f "skills/$SKILL/SKILL.md" || { echo "no skills/$SKILL/SKILL.md"; exit 1; }
-          cd skills && zip -qr "../$SKILL.zip" "$SKILL" -x "$SKILL/docs/*" && cd ..
-          echo "skill=$SKILL" >> "$GITHUB_OUTPUT"; echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-      - name: Create the release
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      - name: Zip the skill and attach it
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "${{ steps.zip.outputs.skill }}.zip" \
-            --title "${{ steps.zip.outputs.skill }} ${{ steps.zip.outputs.version }}" \
-            --notes "Download **${{ steps.zip.outputs.skill }}.zip** and upload it in Claude (Customize → Skills → + → Upload a skill), or unzip it into ~/.claude/skills/. See skills/${{ steps.zip.outputs.skill }}/README.md."
+          SKILL="${TAG%-v*}"
+          test -f "skills/$SKILL/SKILL.md" || { echo "no skills/$SKILL/SKILL.md for tag $TAG"; exit 1; }
+          cd skills && zip -qr "../$SKILL.zip" "$SKILL" -x "$SKILL/docs/*" && cd ..
+          gh release upload "$TAG" "$SKILL.zip" --clobber

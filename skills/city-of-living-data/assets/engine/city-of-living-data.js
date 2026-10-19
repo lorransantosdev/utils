@@ -661,7 +661,10 @@ export function createCity(host, worldIn, opts = {}) {
     if (!a) { const p = placeById.get(f.v.place); a = nearestNode(p?.gate ?? new THREE.Vector3()); b = a.nb[Math.floor(rnd() * a.nb.length)]; }
     const r = f.r = { a, b, c: pickNext(a, b), phase: 'seg', v: 0, vmax: 5.6 + rnd() * 1.4, go: true };
     r.len = segPts(a, b).s.distanceTo(segPts(a, b).e);
-    const L = laneOf(a, b); r.s = L.length ? Math.max(0, Math.min(...L.map((o) => o.r.s)) - GAP - 1) : rnd() * r.len * .6; L.push(f);
+    // take the spot of the lane farthest from every car already on it (never on top of another car)
+    const L = laneOf(a, b); let best = rnd() * r.len * .6, bestGap = -1;
+    if (L.length) for (let s = 0; s < r.len - 1; s += .5) { const g = Math.min(...L.map((o) => Math.abs(o.r.s - s))); if (g > bestGap + .01) { bestGap = g; best = s; } }
+    r.s = best; L.push(f);
     f.y = .06; f.hidden = false; placeCar(f, 0);
   }
   function leaveTraffic(f) {
@@ -673,7 +676,12 @@ export function createCity(host, worldIn, opts = {}) {
   function setupTraffic() {
     const edges = []; for (const a of NODES) for (const b of a.nb) edges.push([a, b]);
     edges.sort(() => rnd() - .5);
-    FLEET.filter((f) => moving(f.v)).forEach((f, i) => { const [a, b] = edges[i * 2 % edges.length]; joinTraffic(f, a, b); });
+    // spread the cars: each one takes the emptiest lane it can find, at most one car per ~2·GAP of lane
+    FLEET.filter((f) => moving(f.v)).forEach((f, i) => {
+      let pick = edges[i * 2 % edges.length], room = -1;
+      for (let k = 0; k < edges.length; k++) { const [a, b] = edges[(i * 2 + k) % edges.length], n = laneOf(a, b).length, len = segPts(a, b).s.distanceTo(segPts(a, b).e), free = len / (GAP * 2) - n; if (free > room) { room = free; pick = [a, b]; } if (n === 0) break; }
+      joinTraffic(f, pick[0], pick[1]);
+    });
   }
   const _p = new THREE.Vector3(), _f = new THREE.Vector3(), _g = new THREE.Vector3();
   function driveCar(f, dt, t) {
@@ -1081,7 +1089,7 @@ export function createCity(host, worldIn, opts = {}) {
   const alertBox = (a) => `<div class="alert ${{ red: 'a-red', amber: 'a-amber', blue: 'a-blue' }[a.sev] ?? 'a-amber'}">${ic(a.sev === 'blue' ? 'clock' : 'alert')}<div><b>${esc(a.title)}</b>${esc(a.text ?? '')}</div></div>`;
   const refAttr = (r) => r ? `data-ref='${esc(JSON.stringify(r))}'` : '';
   const actRef = (a) => a.target ?? (a.place ? { t: 'place', id: a.place } : null);
-  const actRow = (a) => { const r = actRef(a); return `<button class="row" ${refAttr(r)}><span class="sv ${a.sev}"></span><span class="grow"><b>${esc(a.title)}</b><small>${a.place && placeById.get(a.place) ? esc(placeById.get(a.place).shown) + ' · ' : ''}${esc(a.text ?? '')}</small></span>${r ? ic('chev') : ''}</button>`; };
+  const actRow = (a) => { const r = actRef(a); return `<button class="row" ${refAttr(r)}><span class="sv ${a.sev}"></span><span class="grow"><b>${esc(a.title)}</b><small>${esc([a.place && placeById.get(a.place)?.shown, a.text].filter(Boolean).join(' · '))}</small></span>${r ? ic('chev') : ''}</button>`; };
   const vehRow = (v) => { const st = stOf(v); return `<button class="row ${view?.t === 'vehicle' && view.id === v.id ? 'sel' : ''}" ${refAttr({ t: 'vehicle', id: v.id })}><span class="swatch" style="background:${v.color}"></span><span class="grow ell"><b>${esc(v.name)} ${v.colorName ? `<i>${esc(v.colorName)}</i>` : ''}</b><small>${esc(v.listSub ?? placeById.get(v.place)?.shown ?? '')}</small></span>${v.alert === 'red' ? '<span class="badge">!</span>' : ''}${pill(st)}</button>`; };
   const perRow = (q) => `<button class="row" ${refAttr({ t: 'person', id: q.id })}><span class="dot" style="background:${roleOf(q).color}"></span><span class="grow ell"><b>${esc(q.shown)}</b><small>${esc(q.listSub ?? roleOf(q).label)}</small></span>${ic('chev')}</button>`;
   function stackBar(p) {

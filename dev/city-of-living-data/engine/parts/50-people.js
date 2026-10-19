@@ -156,7 +156,7 @@
       p.pos.set(park.cx - 9 + i * 5.2, .35, park.cz + 6 - (i % 2) * 2); p.y = .35; p.tag = nameTag(c.name); COMPANIONS.push(p);
     });
     ME = mkPawn(PAWNS, { me: true, mode: 'player', look: { shirt: W.player.shirt, skin: W.player.skin, hair: W.player.hair, style: W.player.style ?? 'short' } });
-    ME.pos.set(park.cx - 6, .35, park.cz + 9); ME.y = .35; ME.yaw = ME.h = Math.PI; ME.tag = nameTag(W.player.label ?? `${W.player.name}`);
+    ME.pos.set(park.cx, .35, park.cz + 7); ME.y = .35; ME.yaw = ME.h = Math.PI; ME.tag = nameTag(W.player.label ?? `${W.player.name}`);
     const cap = new THREE.Mesh(mergeGeometries([colored(new THREE.SphereGeometry(.235, 18, 8, 0, Math.PI * 2, 0, Math.PI * .45).translate(0, .26, 0), W.player.cap), colored(RB(.3, .04, .22, .02).translate(0, .33, .24), W.player.cap)]), VC);
     cap.matrixAutoUpdate = false; cap.castShadow = true; root.add(cap); HAT = cap;
     // Scott
@@ -169,7 +169,7 @@
     const sh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1.4).rotateX(-Math.PI / 2), BLOB); sh.position.y = .02; g.add(sh);
     const tg = nameTag(W.pet.label ?? 'Scott', g); tg.o.position.set(0, 1.6, 0);
     g.traverse((m) => { if (m.isMesh) { m.userData.pick = { t: 'pet' }; pickables.push(m); } });
-    g.scale.setScalar(1.15); g.position.set(park.cx - 4.5, .35, park.cz + 9.5); root.add(g);
+    g.scale.setScalar(1.15); g.position.set(park.cx + 1.4, .35, park.cz + 8); root.add(g);
     DOG = { g, legs, tail, tag: tg.el, wag: 0, jump: 0 };
   }
   function writeHat(hat, p) {

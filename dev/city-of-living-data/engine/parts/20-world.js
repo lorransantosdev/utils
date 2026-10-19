@@ -90,6 +90,7 @@
   let trunkIM, crownIM;
   function writeTree(i, t) {
     const tr = TREES[i], wig = tr.w > 0 ? Math.sin(t * 22) * tr.w * .12 : 0;
+    if (tr.hid) { trunkIM.setMatrixAt(i, _Z); crownIM.setMatrixAt(i, _Z); return; }
     _m.compose(_v.set(tr.x, tr.y, tr.z), _q.setFromEuler(_E.set(wig, tr.ry, wig * .7)), _s.set(tr.s, tr.s * tr.sy, tr.s));
     trunkIM.setMatrixAt(i, _m); crownIM.setMatrixAt(i, _m);
   }

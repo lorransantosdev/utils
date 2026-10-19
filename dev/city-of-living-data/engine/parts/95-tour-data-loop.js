@@ -158,6 +158,7 @@
   placePeople(); buildCompanions(); crowd = new Crowd(PAWNS, root, 'city'); pickables.push(...crowd.pick);
   buildHeli(); HELI_PLACE = PLACES.find((p) => p.kind === 'tower')?.id ?? park.id; flushTrees(); buildCards(); buildHalos();
   const splashRing = new THREE.Mesh(new THREE.RingGeometry(.9, 1.1, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, depthWrite: false })); splashRing.visible = false; root.add(splashRing);
+  const walkMarker = new THREE.Mesh(new THREE.RingGeometry(.35, .5, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: BRAND, transparent: true, depthWrite: false })); walkMarker.userData.t = 0; root.add(walkMarker);
   const ring = new THREE.Mesh(new THREE.RingGeometry(2.4, 2.75, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: BRAND, transparent: true, depthWrite: false })); ring.visible = false; root.add(ring);
 
   // ============================================================================ loop
@@ -204,6 +205,15 @@
     }
     crowd.update(t, hoverPawn, selPawn); writeHat(HAT, ME);
     for (const p of [...COMPANIONS, ME]) p.tag.o.position.set(p.pos.x, p.y + 2.05 * p.scale, p.pos.z);
+    if (walkMarker.userData.t > 0) { walkMarker.userData.t = Math.max(0, walkMarker.userData.t - dt); walkMarker.material.opacity = walkMarker.userData.t; walkMarker.scale.setScalar(1 + (1 - walkMarker.userData.t)); } walkMarker.visible = walkMarker.userData.t > 0 && mode === 'walk';
+    // walking / riding: trees between the camera and you step aside so you never lose yourself
+    { const near = mode === 'walk' || mode === 'ride', a = pcam.position, bpt = mode === 'ride' ? vehById.get(rideRef)?._f?.pos : ME.pos; let dirty = false;
+      TREES.forEach((tr, i) => {
+        let hid = false;
+        if (near && bpt) { const abx = bpt.x - a.x, abz = bpt.z - a.z, L2 = abx * abx + abz * abz || 1, u = ((tr.x - a.x) * abx + (tr.z - a.z) * abz) / L2; if (u > -.05 && u < 1.02) { const px = a.x + abx * u - tr.x, pz = a.z + abz * u - tr.z; hid = px * px + pz * pz < (2.4 * tr.s) ** 2; } }
+        if (hid !== !!tr.hid) { tr.hid = hid; writeTree(i, t); dirty = true; }
+      });
+      if (dirty) trunkIM.instanceMatrix.needsUpdate = crownIM.instanceMatrix.needsUpdate = true; }
     // trees wiggle, the fountain splashes, statuses pulse
     TREES.forEach((tr, i) => { if (tr.w > 0) { tr.w = Math.max(0, tr.w - dt * 1.3); writeTree(i, t); trunkIM.instanceMatrix.needsUpdate = crownIM.instanceMatrix.needsUpdate = true; } });
     if (splash > 0) { splash = Math.max(0, splash - dt); splashRing.visible = true; splashRing.position.set(FOUNTAIN.x, .82, FOUNTAIN.z); splashRing.scale.setScalar(1 + (1.2 - splash) * 2.2); splashRing.material.opacity = splash / 1.2; } else splashRing.visible = false;
@@ -256,7 +266,7 @@
     world: W, open, close: closeDrawer, enter: enterBuilding, exit: exitBuilding, setMode, viewAll, rotateBy, zoomBy, update, tour: startTour, stopTour, next: () => nextStep(), replay: startReplay, stopReplay, video: setVideo, ride: startRide,
     on(ev, fn) { (listeners[ev] ??= []).push(fn); return () => { listeners[ev] = listeners[ev].filter((x) => x !== fn); }; },
     pick: (x, y) => { const r = canvas.getBoundingClientRect(); const h = pickAt({ clientX: r.left + x, clientY: r.top + y }); return h ? { ...h, tip: tipText(h).replace(/<[^>]+>/g, ' · ') } : null; },
-    state: () => ({ mode, view, inside: inside?.place.id ?? null, touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
+    state: () => ({ mode, view, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop
     sim(sec) { const mv = FLEET.filter((f) => f.r); let minD = 1e9, maxStuck = 0; const stuck = new Map(); for (let t = 0; t < sec; t += .05) { for (const f of mv) driveCar(f, .05, t); for (let i = 0; i < mv.length; i++) for (let j = i + 1; j < mv.length; j++) minD = Math.min(minD, mv[i].pos.distanceTo(mv[j].pos)); for (const f of mv) { const s = f.r.v < .05 ? (stuck.get(f) ?? 0) + .05 : 0; stuck.set(f, s); maxStuck = Math.max(maxStuck, s); } } return { minD: +minD.toFixed(2), maxStuck: +maxStuck.toFixed(1) }; },
     destroy() {

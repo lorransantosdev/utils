@@ -22,7 +22,7 @@ const STR = {
     walkThere: 'Ir a pé até lá', fly: 'Voar de helicóptero', seeAll: 'Ver todas', seeVehicle: 'Ver o veículo', seeDriver: 'Ver o motorista', seePlace: 'Abrir o lugar', talk: 'Falar',
     asOf: 'Retrato de', live: 'Ao vivo', stale: 'Dados atrasados', noData: 'Sem dados', close: 'Fechar', zoomIn: 'Aproximar', zoomOut: 'Afastar', rotL: 'Girar para a esquerda', rotR: 'Girar para a direita', home: 'Ver tudo',
     hintMap: 'Arraste para mover · roda do mouse para zoom · clique em qualquer coisa', hintInside: 'Clique no chão para andar · clique em tudo · tapete = sair',
-    keysWalk: '<b>A pé</b><span><kbd>W A S D</kbd> andar · <kbd>Shift</kbd> correr</span><span>arraste para olhar · clique nas pessoas</span><span><kbd>E</kbd> entrar · <kbd>F</kbd> helicóptero · <kbd>Esc</kbd> mapa</span>',
+    keysWalk: '<b>A pé</b><span>clique no chão para ir até lá</span><span><kbd>W A S D</kbd> andar · <kbd>Shift</kbd> correr</span><span>arraste para olhar · clique nas pessoas</span><span><kbd>E</kbd> entrar · <kbd>F</kbd> helicóptero · <kbd>Esc</kbd> mapa</span>',
     keysHeli: '<b>Helicóptero</b><span><kbd>W S</kbd> frente/trás · <kbd>A D</kbd> girar</span><span><kbd>Espaço</kbd> subir · <kbd>C</kbd> descer</span><span><kbd>F</kbd> pousar · <kbd>Esc</kbd> mapa</span>',
     keysRide: '<b>Andando junto</b><span>arraste para olhar em volta</span><span><kbd>Esc</kbd> voltar ao mapa</span>',
     pressEnter: 'Entrar em', pressHeli: 'Entrar no helicóptero', land: 'Pousar aqui', landing: 'Pousando…', freeSpot: 'Escolha um lugar livre para pousar', nearHeli: 'Chegue perto do helicóptero', nearPlace: 'Chegue perto de um prédio',
@@ -41,7 +41,7 @@ const STR = {
     walkThere: 'Walk there', fly: 'Fly the helicopter', seeAll: 'See all', seeVehicle: 'See the vehicle', seeDriver: 'See the driver', seePlace: 'Open the place', talk: 'Talk',
     asOf: 'Snapshot of', live: 'Live', stale: 'Data is late', noData: 'No data', close: 'Close', zoomIn: 'Zoom in', zoomOut: 'Zoom out', rotL: 'Rotate left', rotR: 'Rotate right', home: 'See everything',
     hintMap: 'Drag to move · scroll to zoom · click anything', hintInside: 'Click the floor to walk · click everything · door mat = exit',
-    keysWalk: '<b>Walking</b><span><kbd>W A S D</kbd> move · <kbd>Shift</kbd> run</span><span>drag to look · click people</span><span><kbd>E</kbd> enter · <kbd>F</kbd> helicopter · <kbd>Esc</kbd> map</span>',
+    keysWalk: '<b>Walking</b><span>click the ground to go there</span><span><kbd>W A S D</kbd> move · <kbd>Shift</kbd> run</span><span>drag to look · click people</span><span><kbd>E</kbd> enter · <kbd>F</kbd> helicopter · <kbd>Esc</kbd> map</span>',
     keysHeli: '<b>Helicopter</b><span><kbd>W S</kbd> forward/back · <kbd>A D</kbd> turn</span><span><kbd>Space</kbd> up · <kbd>C</kbd> down</span><span><kbd>F</kbd> land · <kbd>Esc</kbd> map</span>',
     keysRide: '<b>Riding along</b><span>drag to look around</span><span><kbd>Esc</kbd> back to the map</span>',
     pressEnter: 'Enter', pressHeli: 'Board the helicopter', land: 'Land here', landing: 'Landing…', freeSpot: 'Pick a free spot to land', nearHeli: 'Get close to the helicopter', nearPlace: 'Get close to a building',
@@ -329,6 +329,7 @@ export function createCity(host, worldIn, opts = {}) {
   let trunkIM, crownIM;
   function writeTree(i, t) {
     const tr = TREES[i], wig = tr.w > 0 ? Math.sin(t * 22) * tr.w * .12 : 0;
+    if (tr.hid) { trunkIM.setMatrixAt(i, _Z); crownIM.setMatrixAt(i, _Z); return; }
     _m.compose(_v.set(tr.x, tr.y, tr.z), _q.setFromEuler(_E.set(wig, tr.ry, wig * .7)), _s.set(tr.s, tr.s * tr.sy, tr.s));
     trunkIM.setMatrixAt(i, _m); crownIM.setMatrixAt(i, _m);
   }
@@ -914,7 +915,7 @@ export function createCity(host, worldIn, opts = {}) {
       p.pos.set(park.cx - 9 + i * 5.2, .35, park.cz + 6 - (i % 2) * 2); p.y = .35; p.tag = nameTag(c.name); COMPANIONS.push(p);
     });
     ME = mkPawn(PAWNS, { me: true, mode: 'player', look: { shirt: W.player.shirt, skin: W.player.skin, hair: W.player.hair, style: W.player.style ?? 'short' } });
-    ME.pos.set(park.cx - 6, .35, park.cz + 9); ME.y = .35; ME.yaw = ME.h = Math.PI; ME.tag = nameTag(W.player.label ?? `${W.player.name}`);
+    ME.pos.set(park.cx, .35, park.cz + 7); ME.y = .35; ME.yaw = ME.h = Math.PI; ME.tag = nameTag(W.player.label ?? `${W.player.name}`);
     const cap = new THREE.Mesh(mergeGeometries([colored(new THREE.SphereGeometry(.235, 18, 8, 0, Math.PI * 2, 0, Math.PI * .45).translate(0, .26, 0), W.player.cap), colored(RB(.3, .04, .22, .02).translate(0, .33, .24), W.player.cap)]), VC);
     cap.matrixAutoUpdate = false; cap.castShadow = true; root.add(cap); HAT = cap;
     // Scott
@@ -927,7 +928,7 @@ export function createCity(host, worldIn, opts = {}) {
     const sh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1.4).rotateX(-Math.PI / 2), BLOB); sh.position.y = .02; g.add(sh);
     const tg = nameTag(W.pet.label ?? 'Scott', g); tg.o.position.set(0, 1.6, 0);
     g.traverse((m) => { if (m.isMesh) { m.userData.pick = { t: 'pet' }; pickables.push(m); } });
-    g.scale.setScalar(1.15); g.position.set(park.cx - 4.5, .35, park.cz + 9.5); root.add(g);
+    g.scale.setScalar(1.15); g.position.set(park.cx + 1.4, .35, park.cz + 8); root.add(g);
     DOG = { g, legs, tail, tag: tg.el, wag: 0, jump: 0 };
   }
   function writeHat(hat, p) {
@@ -1330,14 +1331,15 @@ export function createCity(host, worldIn, opts = {}) {
       if (pk.t === 'prop' && pk.inst && pk.k === 'tree') return { t: 'prop', k: 'tree', i: h.instanceId };
       if (pk.t === 'prop' && pk.k === 'bay') { const b = pk.bays[h.instanceId]; return { t: 'prop', k: 'bay', place: b.place, n: b.n, vehicle: b.vehicle }; }
       if (pk.uvPick) { const r2 = pk.uvPick(h.uv); if (r2) return r2; continue; }
+      if (pk.t === 'place' && !inside) return { ...pk, ground: [h.point.x, h.point.z] };
       return pk;
     }
     if (inside) return null;
     // the ground answers too: a block belongs to its place, a street tells you its traffic
     const hit = new THREE.Vector3(); if (!ray.ray.intersectPlane(new THREE.Plane(UP, -.25), hit)) return null;
-    for (const p of PLACES) { const r = p.rect; if (hit.x > r.x0 && hit.x < r.x1 && hit.z > r.z0 && hit.z < r.z1) return { t: 'place', id: p.id }; }
-    if (Math.abs(hit.x) < XS[COLS] + RW / 2 && Math.abs(hit.z) < ZS[ROWS] + RW / 2) { const n = FLEET.filter((f) => f.r && f.pos.distanceTo(hit) < 22).length; return { t: 'prop', k: 'road', sub: `${n} ${T.vehicles.toLowerCase()} ${T.onRoad}` }; }
-    return null;
+    for (const p of PLACES) { const r = p.rect; if (hit.x > r.x0 && hit.x < r.x1 && hit.z > r.z0 && hit.z < r.z1) return { t: 'place', id: p.id, ground: [hit.x, hit.z] }; }
+    if (Math.abs(hit.x) < XS[COLS] + RW / 2 && Math.abs(hit.z) < ZS[ROWS] + RW / 2) { const n = FLEET.filter((f) => f.r && f.pos.distanceTo(hit) < 22).length; return { t: 'prop', k: 'road', sub: `${n} ${T.vehicles.toLowerCase()} ${T.onRoad}`, ground: [hit.x, hit.z] }; }
+    return { t: 'grass', ground: [hit.x, hit.z] };
   }
   function tipText(h) {
     const sub = (s) => s ? `<small>${esc(s)}</small>` : '';
@@ -1383,8 +1385,9 @@ export function createCity(host, worldIn, opts = {}) {
   const canvas = renderer.domElement;
   canvas.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch' || down?.drag || tour) return;
-    const h = pickAt(e), key = h ? JSON.stringify(h) : '';
-    if (key !== (hover ? JSON.stringify(hover) : '')) {
+    let h = pickAt(e); if (h?.t === 'grass' || (mode === 'walk' && h?.ground)) h = null;
+    const hk = (x) => (x ? JSON.stringify({ ...x, ground: undefined }) : ''), key = hk(h);
+    if (key !== hk(hover)) {
       hover = h; tip.innerHTML = h ? tipText(h) : ''; tip.classList.toggle('show', !!h); canvas.style.cursor = h ? 'pointer' : '';
       hoverV = !inside && h?.t === 'vehicle' ? vehById.get(h.id)?._f?.i ?? -1 : -1;
       hoverPawn = -1; if (!inside && h) { const pw = h.t === 'person' ? perById.get(h.id)?._pawn : h.t === 'companion' ? COMPANIONS[h.i] : h.t === 'me' ? ME : null; if (pw) hoverPawn = pw.id; }
@@ -1405,10 +1408,12 @@ export function createCity(host, worldIn, opts = {}) {
       if (h.t === 'prop') return clickProp(h);
       return open(h, { fly: false });
     }
-    if (!h) return;
+    // walking: a click on the ground is where you want to go
+    if (mode === 'walk' && (!h || h.ground)) { if (h?.ground) walkGoTo(h.ground[0], h.ground[1]); return; }
+    if (!h || h.t === 'grass') return;
     if (h.t === 'prop') return clickProp(h);
     if (h.t === 'me' && mode === 'walk') return;
-    open(h, { fly: mode === 'map' });
+    open(h.ground ? { t: h.t, id: h.id } : h, { fly: mode === 'map' });
   });
   canvas.addEventListener('dblclick', (e) => {
     if (mode !== 'map' || inside || tour) return;
@@ -1485,8 +1490,15 @@ export function createCity(host, worldIn, opts = {}) {
   const goal = new THREE.Vector3(), lookAt = new THREE.Vector3(), lookNow = new THREE.Vector3();
   let rideYaw = 0;
   const on = (...c) => c.some((k) => keys.has(k));
+  let walkTarget = null;
+  function walkGoTo(x, z) { const p = new THREE.Vector3(x, 0, z); collide(p); walkTarget = p; walkMarker.position.set(p.x, groundAt(p.x, p.z) + .07, p.z); walkMarker.userData.t = 1; }
   function walk(dt) {
-    const f = (on('KeyW', 'ArrowUp') ? 1 : 0) - (on('KeyS', 'ArrowDown') ? 1 : 0), turn = (on('KeyA', 'ArrowLeft') ? 1 : 0) - (on('KeyD', 'ArrowRight') ? 1 : 0);
+    let f = (on('KeyW', 'ArrowUp') ? 1 : 0) - (on('KeyS', 'ArrowDown') ? 1 : 0), turn = (on('KeyA', 'ArrowLeft') ? 1 : 0) - (on('KeyD', 'ArrowRight') ? 1 : 0);
+    if (f || turn) walkTarget = null;
+    else if (walkTarget) { // click-to-walk: turn toward the spot, walk, slow down on arrival
+      const dx = walkTarget.x - ME.pos.x, dz = walkTarget.z - ME.pos.z, d = Math.hypot(dx, dz);
+      if (d < .4) walkTarget = null; else { ME.h += wrapA(Math.atan2(dx, dz) - ME.h) * (1 - Math.exp(-dt * 8)); f = Math.min(1, d / 1.5); }
+    }
     ME.h += turn * dt * 2.4; const v = f * (on('ShiftLeft', 'ShiftRight') ? 8 : 4.2); ME.speed = Math.abs(v);
     ME.pos.x += Math.sin(ME.h) * v * dt; ME.pos.z += Math.cos(ME.h) * v * dt; collide(ME.pos);
     ME.y += (groundAt(ME.pos.x, ME.pos.z) + .05 - ME.y) * (1 - Math.exp(-dt * 14));
@@ -1982,6 +1994,7 @@ export function createCity(host, worldIn, opts = {}) {
   placePeople(); buildCompanions(); crowd = new Crowd(PAWNS, root, 'city'); pickables.push(...crowd.pick);
   buildHeli(); HELI_PLACE = PLACES.find((p) => p.kind === 'tower')?.id ?? park.id; flushTrees(); buildCards(); buildHalos();
   const splashRing = new THREE.Mesh(new THREE.RingGeometry(.9, 1.1, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, depthWrite: false })); splashRing.visible = false; root.add(splashRing);
+  const walkMarker = new THREE.Mesh(new THREE.RingGeometry(.35, .5, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: BRAND, transparent: true, depthWrite: false })); walkMarker.userData.t = 0; root.add(walkMarker);
   const ring = new THREE.Mesh(new THREE.RingGeometry(2.4, 2.75, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: BRAND, transparent: true, depthWrite: false })); ring.visible = false; root.add(ring);
 
   // ============================================================================ loop
@@ -2028,6 +2041,15 @@ export function createCity(host, worldIn, opts = {}) {
     }
     crowd.update(t, hoverPawn, selPawn); writeHat(HAT, ME);
     for (const p of [...COMPANIONS, ME]) p.tag.o.position.set(p.pos.x, p.y + 2.05 * p.scale, p.pos.z);
+    if (walkMarker.userData.t > 0) { walkMarker.userData.t = Math.max(0, walkMarker.userData.t - dt); walkMarker.material.opacity = walkMarker.userData.t; walkMarker.scale.setScalar(1 + (1 - walkMarker.userData.t)); } walkMarker.visible = walkMarker.userData.t > 0 && mode === 'walk';
+    // walking / riding: trees between the camera and you step aside so you never lose yourself
+    { const near = mode === 'walk' || mode === 'ride', a = pcam.position, bpt = mode === 'ride' ? vehById.get(rideRef)?._f?.pos : ME.pos; let dirty = false;
+      TREES.forEach((tr, i) => {
+        let hid = false;
+        if (near && bpt) { const abx = bpt.x - a.x, abz = bpt.z - a.z, L2 = abx * abx + abz * abz || 1, u = ((tr.x - a.x) * abx + (tr.z - a.z) * abz) / L2; if (u > -.05 && u < 1.02) { const px = a.x + abx * u - tr.x, pz = a.z + abz * u - tr.z; hid = px * px + pz * pz < (2.4 * tr.s) ** 2; } }
+        if (hid !== !!tr.hid) { tr.hid = hid; writeTree(i, t); dirty = true; }
+      });
+      if (dirty) trunkIM.instanceMatrix.needsUpdate = crownIM.instanceMatrix.needsUpdate = true; }
     // trees wiggle, the fountain splashes, statuses pulse
     TREES.forEach((tr, i) => { if (tr.w > 0) { tr.w = Math.max(0, tr.w - dt * 1.3); writeTree(i, t); trunkIM.instanceMatrix.needsUpdate = crownIM.instanceMatrix.needsUpdate = true; } });
     if (splash > 0) { splash = Math.max(0, splash - dt); splashRing.visible = true; splashRing.position.set(FOUNTAIN.x, .82, FOUNTAIN.z); splashRing.scale.setScalar(1 + (1.2 - splash) * 2.2); splashRing.material.opacity = splash / 1.2; } else splashRing.visible = false;
@@ -2080,7 +2102,7 @@ export function createCity(host, worldIn, opts = {}) {
     world: W, open, close: closeDrawer, enter: enterBuilding, exit: exitBuilding, setMode, viewAll, rotateBy, zoomBy, update, tour: startTour, stopTour, next: () => nextStep(), replay: startReplay, stopReplay, video: setVideo, ride: startRide,
     on(ev, fn) { (listeners[ev] ??= []).push(fn); return () => { listeners[ev] = listeners[ev].filter((x) => x !== fn); }; },
     pick: (x, y) => { const r = canvas.getBoundingClientRect(); const h = pickAt({ clientX: r.left + x, clientY: r.top + y }); return h ? { ...h, tip: tipText(h).replace(/<[^>]+>/g, ' · ') } : null; },
-    state: () => ({ mode, view, inside: inside?.place.id ?? null, touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
+    state: () => ({ mode, view, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop
     sim(sec) { const mv = FLEET.filter((f) => f.r); let minD = 1e9, maxStuck = 0; const stuck = new Map(); for (let t = 0; t < sec; t += .05) { for (const f of mv) driveCar(f, .05, t); for (let i = 0; i < mv.length; i++) for (let j = i + 1; j < mv.length; j++) minD = Math.min(minD, mv[i].pos.distanceTo(mv[j].pos)); for (const f of mv) { const s = f.r.v < .05 ? (stuck.get(f) ?? 0) + .05 : 0; stuck.set(f, s); maxStuck = Math.max(maxStuck, s); } } return { minD: +minD.toFixed(2), maxStuck: +maxStuck.toFixed(1) }; },
     destroy() {

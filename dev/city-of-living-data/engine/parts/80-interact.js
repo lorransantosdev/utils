@@ -132,14 +132,15 @@
       if (pk.t === 'prop' && pk.inst && pk.k === 'tree') return { t: 'prop', k: 'tree', i: h.instanceId };
       if (pk.t === 'prop' && pk.k === 'bay') { const b = pk.bays[h.instanceId]; return { t: 'prop', k: 'bay', place: b.place, n: b.n, vehicle: b.vehicle }; }
       if (pk.uvPick) { const r2 = pk.uvPick(h.uv); if (r2) return r2; continue; }
+      if (pk.t === 'place' && !inside) return { ...pk, ground: [h.point.x, h.point.z] };
       return pk;
     }
     if (inside) return null;
     // the ground answers too: a block belongs to its place, a street tells you its traffic
     const hit = new THREE.Vector3(); if (!ray.ray.intersectPlane(new THREE.Plane(UP, -.25), hit)) return null;
-    for (const p of PLACES) { const r = p.rect; if (hit.x > r.x0 && hit.x < r.x1 && hit.z > r.z0 && hit.z < r.z1) return { t: 'place', id: p.id }; }
-    if (Math.abs(hit.x) < XS[COLS] + RW / 2 && Math.abs(hit.z) < ZS[ROWS] + RW / 2) { const n = FLEET.filter((f) => f.r && f.pos.distanceTo(hit) < 22).length; return { t: 'prop', k: 'road', sub: `${n} ${T.vehicles.toLowerCase()} ${T.onRoad}` }; }
-    return null;
+    for (const p of PLACES) { const r = p.rect; if (hit.x > r.x0 && hit.x < r.x1 && hit.z > r.z0 && hit.z < r.z1) return { t: 'place', id: p.id, ground: [hit.x, hit.z] }; }
+    if (Math.abs(hit.x) < XS[COLS] + RW / 2 && Math.abs(hit.z) < ZS[ROWS] + RW / 2) { const n = FLEET.filter((f) => f.r && f.pos.distanceTo(hit) < 22).length; return { t: 'prop', k: 'road', sub: `${n} ${T.vehicles.toLowerCase()} ${T.onRoad}`, ground: [hit.x, hit.z] }; }
+    return { t: 'grass', ground: [hit.x, hit.z] };
   }
   function tipText(h) {
     const sub = (s) => s ? `<small>${esc(s)}</small>` : '';
@@ -185,8 +186,9 @@
   const canvas = renderer.domElement;
   canvas.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch' || down?.drag || tour) return;
-    const h = pickAt(e), key = h ? JSON.stringify(h) : '';
-    if (key !== (hover ? JSON.stringify(hover) : '')) {
+    let h = pickAt(e); if (h?.t === 'grass' || (mode === 'walk' && h?.ground)) h = null;
+    const hk = (x) => (x ? JSON.stringify({ ...x, ground: undefined }) : ''), key = hk(h);
+    if (key !== hk(hover)) {
       hover = h; tip.innerHTML = h ? tipText(h) : ''; tip.classList.toggle('show', !!h); canvas.style.cursor = h ? 'pointer' : '';
       hoverV = !inside && h?.t === 'vehicle' ? vehById.get(h.id)?._f?.i ?? -1 : -1;
       hoverPawn = -1; if (!inside && h) { const pw = h.t === 'person' ? perById.get(h.id)?._pawn : h.t === 'companion' ? COMPANIONS[h.i] : h.t === 'me' ? ME : null; if (pw) hoverPawn = pw.id; }
@@ -207,10 +209,12 @@
       if (h.t === 'prop') return clickProp(h);
       return open(h, { fly: false });
     }
-    if (!h) return;
+    // walking: a click on the ground is where you want to go
+    if (mode === 'walk' && (!h || h.ground)) { if (h?.ground) walkGoTo(h.ground[0], h.ground[1]); return; }
+    if (!h || h.t === 'grass') return;
     if (h.t === 'prop') return clickProp(h);
     if (h.t === 'me' && mode === 'walk') return;
-    open(h, { fly: mode === 'map' });
+    open(h.ground ? { t: h.t, id: h.id } : h, { fly: mode === 'map' });
   });
   canvas.addEventListener('dblclick', (e) => {
     if (mode !== 'map' || inside || tour) return;
@@ -287,8 +291,15 @@
   const goal = new THREE.Vector3(), lookAt = new THREE.Vector3(), lookNow = new THREE.Vector3();
   let rideYaw = 0;
   const on = (...c) => c.some((k) => keys.has(k));
+  let walkTarget = null;
+  function walkGoTo(x, z) { const p = new THREE.Vector3(x, 0, z); collide(p); walkTarget = p; walkMarker.position.set(p.x, groundAt(p.x, p.z) + .07, p.z); walkMarker.userData.t = 1; }
   function walk(dt) {
-    const f = (on('KeyW', 'ArrowUp') ? 1 : 0) - (on('KeyS', 'ArrowDown') ? 1 : 0), turn = (on('KeyA', 'ArrowLeft') ? 1 : 0) - (on('KeyD', 'ArrowRight') ? 1 : 0);
+    let f = (on('KeyW', 'ArrowUp') ? 1 : 0) - (on('KeyS', 'ArrowDown') ? 1 : 0), turn = (on('KeyA', 'ArrowLeft') ? 1 : 0) - (on('KeyD', 'ArrowRight') ? 1 : 0);
+    if (f || turn) walkTarget = null;
+    else if (walkTarget) { // click-to-walk: turn toward the spot, walk, slow down on arrival
+      const dx = walkTarget.x - ME.pos.x, dz = walkTarget.z - ME.pos.z, d = Math.hypot(dx, dz);
+      if (d < .4) walkTarget = null; else { ME.h += wrapA(Math.atan2(dx, dz) - ME.h) * (1 - Math.exp(-dt * 8)); f = Math.min(1, d / 1.5); }
+    }
     ME.h += turn * dt * 2.4; const v = f * (on('ShiftLeft', 'ShiftRight') ? 8 : 4.2); ME.speed = Math.abs(v);
     ME.pos.x += Math.sin(ME.h) * v * dt; ME.pos.z += Math.cos(ME.h) * v * dt; collide(ME.pos);
     ME.y += (groundAt(ME.pos.x, ME.pos.z) + .05 - ME.y) * (1 - Math.exp(-dt * 14));

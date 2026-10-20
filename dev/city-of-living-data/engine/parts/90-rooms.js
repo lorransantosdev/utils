@@ -165,6 +165,9 @@
     const staff = p.people.filter((q) => !['wait', 'drive', 'away'].includes(q.state)).slice(0, 3);
     hitBox(7.2, 1.2, 1.5, 4, .6, -3.6, { t: 'prop', k: 'counter', sub: staff.map((q) => q.shown).join(', '), ref: staff[0] ? { t: 'person', id: staff[0].id } : { t: 'place', id: p.id } }, g); room.pick.push(g.children.at(-1));
     staff.forEach((q, i) => { const pw = insidePawn(room, { data: q, mode: 'idle' }); pw.pos.set(4.2 + (i - (staff.length - 1) / 2) * 1.8, 0, -4.9); pw.y = 0; pw.yaw = 0; });
+    // the rest of the team sits at desks on the left: a lit screen = active this week, an empty chair = no recent access
+    const team = p.people.filter((q) => !['wait', 'drive', 'away'].includes(q.state)).slice(3, 11);
+    if (team.length) desks(room, p, team, -9, -5.4, 2, 2.9, 2.4);
     // people here for a vehicle wait on the chairs
     const waiting = p.people.filter((q) => q.state === 'wait').slice(0, 10);
     waiting.forEach((q, k) => { const x = -6.5 + k * 1.25, z = 3.6; chair(B, x, z, Math.PI); const pw = insidePawn(room, { data: q, mode: 'idle', pose: 'sit' }); pw.pos.set(x, .5, z + .05); pw.y = .25; pw.yaw = Math.PI; pw.basePose = 'sit'; });

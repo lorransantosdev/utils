@@ -39,7 +39,8 @@ export function createCity(host, worldIn, opts = {}) {
     <div class="c-cam c-glass">
       <button data-zin title="${T.zoomIn}" aria-label="${T.zoomIn}">${ic('plus')}</button><button data-zout title="${T.zoomOut}" aria-label="${T.zoomOut}">${ic('minus')}</button><hr>
       <button data-rotl title="${T.rotL} (Q)" aria-label="${T.rotL}">${ic('rotl')}</button><button data-rotr title="${T.rotR} (E)" aria-label="${T.rotR}">${ic('rotr')}</button><hr>
-      <button data-home title="${T.home}" aria-label="${T.home}">${ic('home')}</button>
+      <button data-home title="${T.home}" aria-label="${T.home}">${ic('home')}</button><hr>
+      <button data-night title="${T.night}" aria-label="${T.night}" ${PAL.night ? 'hidden' : ''}>${ic('moon')}</button>
     </div>
     <div class="c-hint" data-hint>${T.hintMap}</div>
     <aside class="c-drawer" aria-label="Details"><div class="c-dh"><nav class="c-crumbs" data-crumbs></nav><button class="c-close" data-close title="${T.close} (Esc)" aria-label="${T.close}">${ic('close')}</button></div><div class="c-body" data-body></div></aside>
@@ -92,6 +93,8 @@ export function createCity(host, worldIn, opts = {}) {
   const RB = (w, h, d, r = .25, seg = 2) => new RoundedBoxGeometry(w, h, d, seg, Math.min(r, w / 2 - .01, h / 2 - .01, d / 2 - .01));
   const VC = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .82 });
   const GLASS = PAL.night ? new THREE.MeshStandardMaterial({ color: '#2B3949', emissive: PAL.glass, emissiveIntensity: .55, roughness: .3 }) : new THREE.MeshStandardMaterial({ color: PAL.glass, roughness: .12, metalness: .35, envMapIntensity: 1.4 });
+  // every place gets its own panes, so at night its windows can glow with its own activity
+  const GLASSES = []; const glassFor = (p) => (p.glass ??= (() => { const m = GLASS.clone(); m.emissive = new THREE.Color('#FFD08A'); m.emissiveIntensity = 0; GLASSES.push({ p, m }); return m; })());
   class Batch {
     constructor() { this.l = []; }
     add(g, col, x = 0, y = 0, z = 0, ry = 0) { if (ry) g.rotateY(ry); g.translate(x, y, z); this.l.push(colored(g, col)); return this; }

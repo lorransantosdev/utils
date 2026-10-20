@@ -108,7 +108,7 @@
     for (const v of added.splice(Math.max(0, CAP_V - FLEET.length))) { console.warn('[city] vehicle capacity reached, reload to show', v.id); }
     for (const v of added) { addFleet(v); const p = placeById.get(v.place); const b = p?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } changed.add(v); }
     for (const v of changed) { if (!moving(v) && !v._f.bay) { const b = placeById.get(v.place)?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } } syncVehicle(v); }
-    paintBays(); refreshCards(); refreshSigns(); renderDrawer();
+    paintBays(); refreshCards(); refreshSigns(); renderDrawer(); refreshNight();
     for (const r of Object.values(ROOMS)) if (r !== inside) r.dirty = true;
     emit('update', patch);
   }
@@ -176,7 +176,7 @@
   }
 
   // ============================================================================ build everything
-  buildBase(); buildLights(); buildPlaces(); borderTrees();
+  buildBase(); buildLights(); buildStreetLamps(); buildPlaces(); borderTrees();
   VEH.forEach(addFleet); assignBays(); FLEET.forEach((f) => { if (!moving(f.v)) parkAt(f); }); paintBays(); setupTraffic();
   placePeople(); buildCompanions(); crowd = new Crowd(PAWNS, root, 'city'); pickables.push(...crowd.pick);
   buildHeli(); HELI_PLACE = PLACES.find((p) => p.kind === 'tower')?.id ?? park.id; flushTrees(); buildCards(); buildHalos();
@@ -280,6 +280,8 @@
 
   // ============================================================================ start + public API
   renderKpis(); renderDock(); renderAsOf(); renderBanner(); startSources();
+  $('night')?.addEventListener('click', () => setNight(!night));
+  { const n = W.meta.night; const h = new Date().getHours(); if (n === true || (n === 'auto' && (h >= 18 || h < 6))) setNight(true, { quiet: true }); }
   for (const f of FLEET) writeCar(f); flushCars();
   ocam.zoom = fitZoom() * .7; ocam.updateProjectionMatrix(); viewAll(1.8);
   later(() => ($('hint').style.opacity = 0), 9000);
@@ -293,8 +295,9 @@
       const az = o.az ?? (o.daz != null ? AZ0 + o.daz : cur.theta), z = o.zoom ?? (o.zoomFit != null ? fitZoom() * o.zoomFit : ocam.zoom);
       flyTo(new THREE.Vector3(o.x ?? controls.target.x, 0, o.z ?? controls.target.z), z, o.dur ?? 1.2, az); },
     walkTo: (x, z) => { if (mode !== 'walk') setMode('walk'); walkGoTo(x, z); },
+    setNight: (on) => setNight(on),
     pick: (x, y) => { const r = canvas.getBoundingClientRect(); const h = pickAt({ clientX: r.left + x, clientY: r.top + y }); return h ? { ...h, tip: tipText(h).replace(/<[^>]+>/g, ' · ') } : null; },
-    state: () => ({ mode, view, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
+    state: () => ({ mode, view, night, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop
     sim(sec) { const mv = FLEET.filter((f) => f.r); let minD = 1e9, maxStuck = 0; const stuck = new Map(); for (let t = 0; t < sec; t += .05) { for (const f of mv) driveCar(f, .05, t); for (let i = 0; i < mv.length; i++) for (let j = i + 1; j < mv.length; j++) minD = Math.min(minD, mv[i].pos.distanceTo(mv[j].pos)); for (const f of mv) { const s = f.r.v < .05 ? (stuck.get(f) ?? 0) + .05 : 0; stuck.set(f, s); maxStuck = Math.max(maxStuck, s); } } return { minD: +minD.toFixed(2), maxStuck: +maxStuck.toFixed(1) }; },
     destroy() {

@@ -35,13 +35,14 @@ night palette) to it.
 | `rotateBy(rad)` / `zoomBy(factor)` | animated camera moves (Q/E use ±π/2) |
 | `fly({ x, z, zoom \| zoomFit, az \| daz, dur })` | scripted camera move: target point, zoom (absolute, or `zoomFit` × the fit-all zoom), azimuth (absolute, or `daz` from the default iso angle), seconds (`0` = cut). Missing fields keep their current value — handy for promo videos |
 | `walkTo(x, z)` | switch to walk mode and walk the player to a point (same as clicking the ground) |
+| `setNight(on)` | night mode without rebuilding anything: moonlight, street lamps with light pools, headlights on moving cars, and every building's windows glow with its own activity (share of people active). Also the moon button and clicking any street lamp; `meta.night: true \| false \| 'auto'` (auto = 18:00–06:00 local) |
 | `update(patch)` | live data: merge `places`, `vehicles`, `people` by id; replace `kpis`, `actions`; set `asOf`, `banner` (see below) |
 | `tour(steps?, label?)` | start the presentation, or play any list of steps (a journey) |
 | `stopTour()` / `next()` | stop / jump to the next step |
 | `replay()` / `stopReplay()` | play `world.timeline` / stop and restore |
 | `video(on)` | 9:16 frame for recording vertical videos |
 | `on(event, fn)` | subscribe; returns an unsubscribe function |
-| `state()` | `{ mode, view, inside, touring, replaying, calls, tris, me: [x, z] }` |
+| `state()` | `{ mode, view, night, inside, touring, replaying, calls, tris, me: [x, z] }` |
 | `pick(x, y)` | what is under a point (pixels, relative to the canvas) + its tooltip text — for tests |
 | `sim(seconds)` | run the traffic for N seconds off-screen; returns `{ minD, maxStuck }` (closest two cars, longest stop) |
 | `destroy()` | stop the loop, remove listeners and sources, dispose GPU memory, empty the host |
@@ -56,6 +57,7 @@ night palette) to it.
 | `enter` / `exit` | place id |
 | `tour` / `replay` | `true` when it starts, `false` when it ends |
 | `update` | the patch that was applied |
+| `night` | `true` / `false` |
 
 ### update(patch)
 

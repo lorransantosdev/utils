@@ -84,6 +84,27 @@
     Sd.flush(root, { cast: false });
   }
 
+  // street lamps: posts along every road (always there), bulbs and light pools that only show at night
+  const LAMPS = []; let lampBulbIM, lampPoolIM;
+  function buildStreetLamps() {
+    const B = new Batch();
+    for (const a of NODES) for (const b of a.nb) {
+      if (!(b.i > a.i || b.j > a.j)) continue;
+      const L = Math.hypot(b.x - a.x, b.z - a.z), dx = (b.x - a.x) / L, dz = (b.z - a.z) / L, nx = -dz, nz = dx;
+      for (let k = 0, sIdx = 0; k < 2; k++) for (let sd = TURN + 7; sd < L - TURN - 4; sd += 14, sIdx++) {
+        const side = (k ? 1 : -1), x = a.x + dx * sd + nx * side * (RW / 2 + .9), z = a.z + dz * sd + nz * side * (RW / 2 + .9);
+        B.add(new THREE.CylinderGeometry(.09, .13, 4.2, 8), '#3A3D44', x, 2.35, z).box(1.1, .1, .1, '#3A3D44', x - nx * side * .5, 4.45, z - nz * side * .5, dx ? 0 : Math.PI / 2);
+        LAMPS.push({ x: x - nx * side * 1, z: z - nz * side * 1, y: 4.42 });
+      }
+    }
+    const m = B.flush(root); if (m) { m.userData.pick = { t: 'prop', k: 'lamp' }; pickables.push(m); }
+    const poolTex = canvasTex((x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(255,214,150,.5)'); g.addColorStop(1, 'rgba(255,214,150,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }, 128, 128);
+    lampBulbIM = new THREE.InstancedMesh(new THREE.SphereGeometry(.2, 10, 8).scale(1.6, .6, 1.6), new THREE.MeshStandardMaterial({ color: '#FFF1D0', emissive: '#FFD58A', emissiveIntensity: 2.4 }), Math.max(1, LAMPS.length));
+    lampPoolIM = new THREE.InstancedMesh(new THREE.PlaneGeometry(9, 9).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: poolTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), Math.max(1, LAMPS.length));
+    LAMPS.forEach((l, i) => { lampBulbIM.setMatrixAt(i, _m.compose(_v.set(l.x, l.y, l.z), _q.identity(), _s.set(1, 1, 1))); lampPoolIM.setMatrixAt(i, _m.compose(_v.set(l.x, .07, l.z), _q.identity(), _s.set(1, 1, 1))); });
+    lampBulbIM.count = lampPoolIM.count = LAMPS.length; lampBulbIM.visible = lampPoolIM.visible = false; root.add(lampBulbIM, lampPoolIM);
+  }
+
   // trees: two instanced meshes for the whole city; each one wiggles when clicked
   const TREES = [];
   const tree = (x, z, s = 1, y = .25) => TREES.push({ x, z, s: s * (.85 + rnd() * .35), y, t: Math.floor(rnd() * 3), ry: rnd() * 6, sy: 1 + rnd() * .2, w: 0 });

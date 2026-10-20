@@ -20,6 +20,7 @@ export interface CityApi {
   zoomBy(factor: number): void;
   fly(o?: FlyOptions): void;
   walkTo(x: number, z: number): void;
+  setNight(on: boolean): void;
   update(patch: CityPatch): void;
   tour(steps?: any[], label?: string): void;
   stopTour(): void;
@@ -27,8 +28,8 @@ export interface CityApi {
   replay(): void;
   stopReplay(): void;
   video(on: boolean): void;
-  on(event: 'open' | 'close' | 'mode' | 'enter' | 'exit' | 'tour' | 'replay' | 'update', fn: (detail?: any) => void): () => void;
-  state(): { mode: string; view: Ref | null; inside: string | null; touring: boolean; replaying: boolean; calls: number; tris: number; me: [number, number] };
+  on(event: 'open' | 'close' | 'mode' | 'enter' | 'exit' | 'tour' | 'replay' | 'update' | 'night', fn: (detail?: any) => void): () => void;
+  state(): { mode: string; view: Ref | null; night: boolean; inside: string | null; touring: boolean; replaying: boolean; calls: number; tris: number; me: [number, number] };
   pick(x: number, y: number): (Ref & { tip?: string }) | null;
   sim(seconds: number): { minD: number; maxStuck: number };
   destroy(): void;

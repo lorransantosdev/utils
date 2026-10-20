@@ -59,6 +59,7 @@ changes. Full examples: `assets/examples/rental.world.json` (monitor a business)
 | `asOf` | – | ISO date; "Snapshot of …" when there are no live sources; with sources it feeds "Live · 3 min ago" and the stale check |
 | `banner` | – | a slim line under the header: a string or `{ text, label, tone, at }` (data-sources.md §15); updatable with `update({ banner })` |
 | `autoplay` | – | `"tour"` starts the presentation 2.5 s after load |
+| `night` | `false` | `true` starts in night mode, `'auto'` follows the viewer's clock (18:00–06:00). Windows glow with each place's activity; the moon button and the street lamps toggle it |
 | `fontDisplay`, `fontBody` | `Sora`, `DM Sans` | fonts used on canvas textures (signs, screens). The HUD fonts come from CSS |
 | `text` | – | override any UI string, e.g. `{ "present": "Play" }` (keys in engine `STR`) |
 

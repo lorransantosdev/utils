@@ -245,6 +245,7 @@
 .c-veil { position: absolute; inset: 0; z-index: 9; background: var(--bg-a); opacity: 0; pointer-events: none; transition: opacity .28s ease; }
 .c-veil.on { opacity: 1; }
 .c-app.inside .c-cam [data-home] { color: var(--brand-strong); }
+.c-cam [data-night].on { color: var(--amber-ink); }
 
 /* ---------- narrow (phones, and the 9:16 video frame) ---------- */
 @container cold (max-width: 760px) {

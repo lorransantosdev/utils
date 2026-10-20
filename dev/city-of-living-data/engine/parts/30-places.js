@@ -48,7 +48,7 @@
     const A = new Batch(); for (let i = 0; i < 5; i++) A.box(.85, .13, .13, i % 2 ? '#FFFFFF' : band, .45 + i * .85, 0, 0); const am = A.flush(p.arm, { pick: { t: 'prop', k: 'gate', place: p.id } }); pickables.push(am);
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 5.5) if (Math.abs(x - gx) > 4) tree(x, cz + BD / 2 - 2.6, .8);
     tree(cx - BW / 2 + 1.8, lotZ - 3, .85); tree(cx - BW / 2 + 1.8, lotZ + 4, .85); tree(cx + BW / 2 - 1.8, lotZ - 3, .85); tree(cx + BW / 2 - 1.8, lotZ + 4, .85);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, y + H + 7.5, bz - 3), door: new THREE.Vector3(cx - 5.2, y, bz + bd / 2 + 2.2), gate: new THREE.Vector3(gx, y, gz + 2), roof: y + H + 3 });
     p.hang = { x0: p.door.x - 4, x1: p.door.x + 4, z0: p.door.z - .6, z1: p.door.z + .4 };
   }
@@ -66,7 +66,7 @@
     const n = Math.max(1, Math.min(8, p.vehicles.length, p.capacity ?? 99));
     if (p.vehicles.length) lot(B, p, cx + 9.5, cz + 6.5, Math.max(n, 4), 1);
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 5.5) tree(x, cz + BD / 2 - 2.4, .8);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, y + 7.6, kz), door: new THREE.Vector3(cx, y, kz + 4), gate: new THREE.Vector3(cx, y, cz + 8), roof: y + 5 });
     p.hang = { x0: cx - 15, x1: cx + 2, z0: cz - 5.5, z1: cz + 12 };
     p.idleSpot = (k) => new THREE.Vector3(cx - 15.5 + (k % 13) * 1.3 + (rnd() - .5) * .3, y, cz - 5.6 + Math.floor(k / 13) * 1.5 + (rnd() - .5) * .3);
@@ -115,7 +115,7 @@
       if (bars.length) { const gm = new THREE.Mesh(mergeGeometries(bars), new THREE.MeshStandardMaterial({ color: '#E8B53A', roughness: .28, metalness: .85, envMapIntensity: 1.5 })); gm.castShadow = true; gm.userData.pick = { t: 'prop', k: 'vault', place: p.id }; root.add(gm); pickables.push(gm); }
     }
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 6) tree(x, cz + BD / 2 - 2.2, .8);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, top + 5.4, tz), door: new THREE.Vector3(cx, y, tz + td / 2 + 3), gate: new THREE.Vector3(cx, y, cz + 9), roof: top + 2, crown, floorsN: floors });
     p.hang = { x0: cx - 4.5, x1: cx + 5, z0: cz - 1, z1: cz + 12 };
     p.idleSpot = (k, nIdle) => { const a = k / Math.max(1, nIdle) * Math.PI * 1.5 - Math.PI * .75; return new THREE.Vector3(cx + Math.cos(a) * 2.4, y, cz + .5 + Math.sin(a) * 1.4); };
@@ -139,7 +139,7 @@
     B.add(new THREE.CylinderGeometry(2.2, 2.4, .3, 28), '#E8E3DC', cx - 8, y + .15, cz + 6);
     tree(cx - 8, cz + 6, 1, y + .3);
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 6) tree(x, cz + BD / 2 - 2.2, .8);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, top + 4.4, oz), door: new THREE.Vector3(cx, y, oz + od / 2 + 2.4), gate: new THREE.Vector3(cx, y, cz + 9), roof: top + 1 });
     p.hang = { x0: cx - 6, x1: cx + 4, z0: cz - 2, z1: cz + 11 };
     p.idleSpot = (k) => new THREE.Vector3(cx - 4 + (k % 6) * 1.4, y, cz - 1.5 + Math.floor(k / 6) * 1.4);

@@ -9,7 +9,7 @@
     const lk = o.data?.look ?? o.look ?? {};
     const p = {
       id: list.length, pos: new THREE.Vector3(), vel: new THREE.Vector3(), yaw: rnd() * 6, y: .25, ph: rnd() * 6, wait: rnd() * 3, speed: 0,
-      pose: 'stand', look: 0, lookT: 0, hidden: false, react: 0, ...o,
+      pose: 'stand', lookT: 0, hidden: false, react: 0, ...o, look: 0, // `look` is the head-turn angle; the appearance object passed as `look` lives in `lk`
       style: lk.style ?? (rnd() < .4 ? 'long' : 'short'), skin: lk.skin ?? SKIN[Math.floor(rnd() * SKIN.length)], hairC: lk.hair ?? HAIR[Math.floor(rnd() * HAIR.length)],
       pants: lk.pants ?? PANTS[Math.floor(rnd() * PANTS.length)], scale: lk.scale ?? 1,
     };

@@ -107,6 +107,24 @@
   host.querySelector('[data-zin]').onclick = () => zoomBy(1.4); host.querySelector('[data-zout]').onclick = () => zoomBy(1 / 1.4);
   host.querySelector('[data-rotl]').onclick = () => rotateBy(-Math.PI / 2); host.querySelector('[data-rotr]').onclick = () => rotateBy(Math.PI / 2);
   host.querySelector('[data-home]').onclick = () => { if (inside) return exitBuilding(); if (mode !== 'map') setMode('map'); if (view) closeDrawer(); else viewAll(); };
+  // ---------------------------------------------------------------- night: the same city under moonlight, lit from the inside
+  // Nothing is rebuilt: the lights change, windows glow with each place's activity, street lamps and headlights come on.
+  let night = false;
+  const DAY = { sun: PAL.sun, hemi: PAL.hemi, sunC: PAL.night ? '#AFC6FF' : '#FFF1E2', hemiC: '#FFFFFF', groundC: PAL.night ? '#223040' : '#E9DED3', env: PAL.night ? .25 : .5, exp: 1.04 };
+  const activityOf = (p) => { const n = p.people.length; if (!n) return p.kind === 'shop' ? .5 : .15; return p.people.filter((q) => q.state === 'wander' || q.state === 'work' || q.state === 'drive').length / n; };
+  function setNight(on, opts = {}) {
+    if (PAL.night) return; night = !!on; host.classList.toggle('cold-night', night);
+    const bg = night ? PALETTES.night.bg : PAL.bg; host.style.setProperty('--bg-a', bg[0]); host.style.setProperty('--bg-b', bg[1]);
+    sun.intensity = night ? .38 : DAY.sun; sun.color.set(night ? '#8FA6D6' : DAY.sunC);
+    hemi.intensity = night ? .42 : DAY.hemi; hemi.color.set(night ? '#5E7392' : DAY.hemiC); hemi.groundColor.set(night ? '#0F1620' : DAY.groundC);
+    scene.environmentIntensity = night ? .12 : DAY.env; renderer.toneMappingExposure = night ? .92 : DAY.exp;
+    for (const { p, m } of GLASSES) { m.emissiveIntensity = night ? .45 + 1.1 * activityOf(p) : 0; m.color.set(night ? '#2B3949' : PAL.glass); m.roughness = night ? .3 : .12; m.metalness = night ? 0 : .35; }
+    lampBulbIM.visible = lampPoolIM.visible = night; carLamp.visible = carTail.visible = carBeam.visible = night;
+    const b = $('night'); if (b) { b.innerHTML = ic(night ? 'sun' : 'moon'); b.title = b.ariaLabel = night ? T.day : T.night; b.classList.toggle('on', night); }
+    if (!opts.quiet) flashTip(`${night ? T.night : T.day}${night ? `<small>${T.litHint}</small>` : ''}`);
+    emit('night', night);
+  }
+  const refreshNight = () => { if (night) setNight(true, { quiet: true }); };
   function setVideo(on) { videoMode = on; app.classList.toggle('video', on); renderDock(); later(() => { resize(); if (!inside) viewAll(.6); }, 60); }
 
   // ============================================================================ hover + click in the city (and inside)
@@ -159,6 +177,7 @@
       if (h.k === 'vault') return `${esc(p?.vaultTitle ?? T.vault)}${sub(p?.vaultText)}`;
       if (h.k === 'ghost') return `${T.ghost}${sub(p?.nextFloor)}`;
       if (h.k === 'gate') return `${T.gate}${sub(p?.shown)}`;
+      if (h.k === 'lamp') return `${T.lamp}${sub(T.lampSub)}`;
       return `${esc(h.label ?? T[h.k] ?? h.k)}${sub(h.sub)}`;
     }
     return '';
@@ -170,6 +189,7 @@
     if (h.k === 'gate') { const p = placeById.get(h.place); p._gate = 2.4; return; }
     if (h.k === 'fountain') { splash = 1.2; return; }
     if (h.k === 'light') { flashTip(tipText(h)); return; }
+    if (h.k === 'lamp') { setNight(!night); return; }
     if (h.k === 'bench') { say(() => new THREE.Vector3(park.cx, 2.4, park.cz), W.meta.locale.startsWith('pt') ? 'Senta aqui um pouco 🙂' : 'Have a seat 🙂', 2.5); return; }
     if (h.k === 'plant' && h.obj) { h.obj.userData.w = 1; return; }
     if (h.k === 'heli' && mode === 'map' && !inside) return open({ t: 'prop', k: 'heli' }, { fly: false });

@@ -13,7 +13,13 @@
   const carBlob = new THREE.InstancedMesh(new THREE.PlaneGeometry(4.4, 2.5).rotateX(-Math.PI / 2), BLOB, CAP_V);
   const carHead = new THREE.InstancedMesh(new THREE.SphereGeometry(.22, 14, 10).translate(-.05, 1.12, -.3), new THREE.MeshStandardMaterial({ roughness: .7 }), CAP_V);
   const carTorso = new THREE.InstancedMesh(RB(.4, .42, .44, .14).translate(-.05, .78, -.3), new THREE.MeshStandardMaterial({ roughness: .7 }), CAP_V);
-  const carIMs = [carBody, carCab, carDet, carBlob, carHead, carTorso];
+  // night: headlights, tail lights and a soft beam on the road (only for cars that are moving)
+  const beamTex = canvasTex((x, w, h) => { const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(255,230,170,.55)'); g.addColorStop(1, 'rgba(255,230,170,0)'); x.fillStyle = g; x.beginPath(); x.moveTo(0, h * .38); x.lineTo(w, 0); x.lineTo(w, h); x.lineTo(0, h * .62); x.closePath(); x.fill(); }, 256, 128);
+  const carLamp = new THREE.InstancedMesh(mergeGeometries([plain(new THREE.BoxGeometry(.08, .16, .36).translate(1.73, .66, -.5)), plain(new THREE.BoxGeometry(.08, .16, .36).translate(1.73, .66, .5))]), new THREE.MeshStandardMaterial({ color: '#FFF4D6', emissive: '#FFE3A6', emissiveIntensity: 2.2 }), CAP_V);
+  const carTail = new THREE.InstancedMesh(mergeGeometries([plain(new THREE.BoxGeometry(.08, .14, .32).translate(-1.73, .7, -.5)), plain(new THREE.BoxGeometry(.08, .14, .32).translate(-1.73, .7, .5))]), new THREE.MeshStandardMaterial({ color: '#D3262B', emissive: '#FF2D2D', emissiveIntensity: 1.6 }), CAP_V);
+  const carBeam = new THREE.InstancedMesh(new THREE.PlaneGeometry(6.5, 4.2).rotateX(-Math.PI / 2).translate(4.9, .06, 0), new THREE.MeshBasicMaterial({ map: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), CAP_V);
+  for (const m of [carLamp, carTail, carBeam]) m.visible = false;
+  const carIMs = [carBody, carCab, carDet, carBlob, carHead, carTorso, carLamp, carTail, carBeam];
   for (const m of carIMs) { m.count = 0; m.frustumCulled = false; if (m !== carBlob && m !== carCab) { m.castShadow = true; m.receiveShadow = true; } root.add(m); }
   carBody.userData.pick = carCab.userData.pick = carDet.userData.pick = { t: 'vehicle', inst: true };
   carHead.userData.pick = carTorso.userData.pick = { t: 'driver', inst: true };
@@ -40,6 +46,7 @@
     carBody.setMatrixAt(f.i, _m); carCab.setMatrixAt(f.i, _m); carDet.setMatrixAt(f.i, _m);
     const drv = moving(f.v) || f.packet;
     carHead.setMatrixAt(f.i, drv ? _m : _Z); carTorso.setMatrixAt(f.i, drv ? _m : _Z);
+    carLamp.setMatrixAt(f.i, drv ? _m : _Z); carTail.setMatrixAt(f.i, drv ? _m : _Z); carBeam.setMatrixAt(f.i, drv ? _m : _Z);
     _s.set(1, 1, 1); _v.set(f.pos.x, f.y + .02, f.pos.z); _m.compose(_v, _q, _s); carBlob.setMatrixAt(f.i, _m);
   }
   const flushCars = () => { for (const m of carIMs) m.instanceMatrix.needsUpdate = true; };

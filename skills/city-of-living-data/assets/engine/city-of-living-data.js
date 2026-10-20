@@ -20,6 +20,7 @@ const STR = {
     present: 'Apresentar', stop: 'Parar', replay: 'Replay', video: 'Modo vídeo', videoOff: 'Sair do modo vídeo', more: 'Mais',
     actions: 'Precisa de atenção', urgent: 'urgentes', vehicles: 'Veículos', people: 'Pessoas', todo: 'Pendências', places: 'Lugares', nothing: 'Nada pendente.',
     walkThere: 'Ir a pé até lá', fly: 'Voar de helicóptero', seeAll: 'Ver todas', seeVehicle: 'Ver o veículo', seeDriver: 'Ver o motorista', seePlace: 'Abrir o lugar', talk: 'Falar',
+    night: 'Modo noturno', day: 'Modo diurno', litHint: 'janela acesa = gente ativa', lamp: 'Poste', lampSub: 'clique para ligar/desligar a noite',
     asOf: 'Retrato de', live: 'Ao vivo', stale: 'Dados atrasados', noData: 'Sem dados', close: 'Fechar', zoomIn: 'Aproximar', zoomOut: 'Afastar', rotL: 'Girar para a esquerda', rotR: 'Girar para a direita', home: 'Ver tudo',
     hintMap: 'Arraste para mover · roda do mouse para zoom · clique em qualquer coisa', hintInside: 'Clique no chão para andar · clique em tudo · tapete = sair',
     keysWalk: '<b>A pé</b><span>clique no chão para ir até lá</span><span><kbd>W A S D</kbd> andar · <kbd>Shift</kbd> correr</span><span>arraste para olhar · clique nas pessoas</span><span><kbd>E</kbd> entrar · <kbd>F</kbd> helicóptero · <kbd>Esc</kbd> mapa</span>',
@@ -40,6 +41,7 @@ const STR = {
     present: 'Present', stop: 'Stop', replay: 'Replay', video: 'Video mode', videoOff: 'Exit video mode', more: 'More',
     actions: 'Needs attention', urgent: 'urgent', vehicles: 'Vehicles', people: 'People', todo: 'To do', places: 'Places', nothing: 'Nothing pending.',
     walkThere: 'Walk there', fly: 'Fly the helicopter', seeAll: 'See all', seeVehicle: 'See the vehicle', seeDriver: 'See the driver', seePlace: 'Open the place', talk: 'Talk',
+    night: 'Night mode', day: 'Day mode', litHint: 'lit window = people active', lamp: 'Street lamp', lampSub: 'click to switch night on/off',
     asOf: 'Snapshot of', live: 'Live', stale: 'Data is late', noData: 'No data', close: 'Close', zoomIn: 'Zoom in', zoomOut: 'Zoom out', rotL: 'Rotate left', rotR: 'Rotate right', home: 'See everything',
     hintMap: 'Drag to move · scroll to zoom · click anything', hintInside: 'Click the floor to walk · click everything · door mat = exit',
     keysWalk: '<b>Walking</b><span>click the ground to go there</span><span><kbd>W A S D</kbd> move · <kbd>Shift</kbd> run</span><span>drag to look · click people</span><span><kbd>E</kbd> enter · <kbd>F</kbd> helicopter · <kbd>Esc</kbd> map</span>',
@@ -71,6 +73,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const wrapA = (a) => ((a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
 const mix = (a, b, k) => { const c = new THREE.Color(a).lerp(new THREE.Color(b), k); return '#' + c.getHexString(); };
 const ICONS = {
+  moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', minus: '<path d="M5 12h14"/>', close: '<path d="m9 5 7 7-7 7"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
   rotl: '<path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5"/>', rotr: '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>',
   home: '<path d="M4 11 12 4l8 7v9H4z"/>', chev: '<path d="m9 5 7 7-7 7"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
@@ -150,7 +153,8 @@ export function createCity(host, worldIn, opts = {}) {
     <div class="c-cam c-glass">
       <button data-zin title="${T.zoomIn}" aria-label="${T.zoomIn}">${ic('plus')}</button><button data-zout title="${T.zoomOut}" aria-label="${T.zoomOut}">${ic('minus')}</button><hr>
       <button data-rotl title="${T.rotL} (Q)" aria-label="${T.rotL}">${ic('rotl')}</button><button data-rotr title="${T.rotR} (E)" aria-label="${T.rotR}">${ic('rotr')}</button><hr>
-      <button data-home title="${T.home}" aria-label="${T.home}">${ic('home')}</button>
+      <button data-home title="${T.home}" aria-label="${T.home}">${ic('home')}</button><hr>
+      <button data-night title="${T.night}" aria-label="${T.night}" ${PAL.night ? 'hidden' : ''}>${ic('moon')}</button>
     </div>
     <div class="c-hint" data-hint>${T.hintMap}</div>
     <aside class="c-drawer" aria-label="Details"><div class="c-dh"><nav class="c-crumbs" data-crumbs></nav><button class="c-close" data-close title="${T.close} (Esc)" aria-label="${T.close}">${ic('close')}</button></div><div class="c-body" data-body></div></aside>
@@ -203,6 +207,8 @@ export function createCity(host, worldIn, opts = {}) {
   const RB = (w, h, d, r = .25, seg = 2) => new RoundedBoxGeometry(w, h, d, seg, Math.min(r, w / 2 - .01, h / 2 - .01, d / 2 - .01));
   const VC = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .82 });
   const GLASS = PAL.night ? new THREE.MeshStandardMaterial({ color: '#2B3949', emissive: PAL.glass, emissiveIntensity: .55, roughness: .3 }) : new THREE.MeshStandardMaterial({ color: PAL.glass, roughness: .12, metalness: .35, envMapIntensity: 1.4 });
+  // every place gets its own panes, so at night its windows can glow with its own activity
+  const GLASSES = []; const glassFor = (p) => (p.glass ??= (() => { const m = GLASS.clone(); m.emissive = new THREE.Color('#FFD08A'); m.emissiveIntensity = 0; GLASSES.push({ p, m }); return m; })());
   class Batch {
     constructor() { this.l = []; }
     add(g, col, x = 0, y = 0, z = 0, ry = 0) { if (ry) g.rotateY(ry); g.translate(x, y, z); this.l.push(colored(g, col)); return this; }
@@ -326,6 +332,27 @@ export function createCity(host, worldIn, opts = {}) {
     Sd.flush(root, { cast: false });
   }
 
+  // street lamps: posts along every road (always there), bulbs and light pools that only show at night
+  const LAMPS = []; let lampBulbIM, lampPoolIM;
+  function buildStreetLamps() {
+    const B = new Batch();
+    for (const a of NODES) for (const b of a.nb) {
+      if (!(b.i > a.i || b.j > a.j)) continue;
+      const L = Math.hypot(b.x - a.x, b.z - a.z), dx = (b.x - a.x) / L, dz = (b.z - a.z) / L, nx = -dz, nz = dx;
+      for (let k = 0, sIdx = 0; k < 2; k++) for (let sd = TURN + 7; sd < L - TURN - 4; sd += 14, sIdx++) {
+        const side = (k ? 1 : -1), x = a.x + dx * sd + nx * side * (RW / 2 + .9), z = a.z + dz * sd + nz * side * (RW / 2 + .9);
+        B.add(new THREE.CylinderGeometry(.09, .13, 4.2, 8), '#3A3D44', x, 2.35, z).box(1.1, .1, .1, '#3A3D44', x - nx * side * .5, 4.45, z - nz * side * .5, dx ? 0 : Math.PI / 2);
+        LAMPS.push({ x: x - nx * side * 1, z: z - nz * side * 1, y: 4.42 });
+      }
+    }
+    const m = B.flush(root); if (m) { m.userData.pick = { t: 'prop', k: 'lamp' }; pickables.push(m); }
+    const poolTex = canvasTex((x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(255,214,150,.5)'); g.addColorStop(1, 'rgba(255,214,150,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }, 128, 128);
+    lampBulbIM = new THREE.InstancedMesh(new THREE.SphereGeometry(.2, 10, 8).scale(1.6, .6, 1.6), new THREE.MeshStandardMaterial({ color: '#FFF1D0', emissive: '#FFD58A', emissiveIntensity: 2.4 }), Math.max(1, LAMPS.length));
+    lampPoolIM = new THREE.InstancedMesh(new THREE.PlaneGeometry(9, 9).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: poolTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), Math.max(1, LAMPS.length));
+    LAMPS.forEach((l, i) => { lampBulbIM.setMatrixAt(i, _m.compose(_v.set(l.x, l.y, l.z), _q.identity(), _s.set(1, 1, 1))); lampPoolIM.setMatrixAt(i, _m.compose(_v.set(l.x, .07, l.z), _q.identity(), _s.set(1, 1, 1))); });
+    lampBulbIM.count = lampPoolIM.count = LAMPS.length; lampBulbIM.visible = lampPoolIM.visible = false; root.add(lampBulbIM, lampPoolIM);
+  }
+
   // trees: two instanced meshes for the whole city; each one wiggles when clicked
   const TREES = [];
   const tree = (x, z, s = 1, y = .25) => TREES.push({ x, z, s: s * (.85 + rnd() * .35), y, t: Math.floor(rnd() * 3), ry: rnd() * 6, sy: 1 + rnd() * .2, w: 0 });
@@ -417,7 +444,7 @@ export function createCity(host, worldIn, opts = {}) {
     const A = new Batch(); for (let i = 0; i < 5; i++) A.box(.85, .13, .13, i % 2 ? '#FFFFFF' : band, .45 + i * .85, 0, 0); const am = A.flush(p.arm, { pick: { t: 'prop', k: 'gate', place: p.id } }); pickables.push(am);
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 5.5) if (Math.abs(x - gx) > 4) tree(x, cz + BD / 2 - 2.6, .8);
     tree(cx - BW / 2 + 1.8, lotZ - 3, .85); tree(cx - BW / 2 + 1.8, lotZ + 4, .85); tree(cx + BW / 2 - 1.8, lotZ - 3, .85); tree(cx + BW / 2 - 1.8, lotZ + 4, .85);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, y + H + 7.5, bz - 3), door: new THREE.Vector3(cx - 5.2, y, bz + bd / 2 + 2.2), gate: new THREE.Vector3(gx, y, gz + 2), roof: y + H + 3 });
     p.hang = { x0: p.door.x - 4, x1: p.door.x + 4, z0: p.door.z - .6, z1: p.door.z + .4 };
   }
@@ -435,7 +462,7 @@ export function createCity(host, worldIn, opts = {}) {
     const n = Math.max(1, Math.min(8, p.vehicles.length, p.capacity ?? 99));
     if (p.vehicles.length) lot(B, p, cx + 9.5, cz + 6.5, Math.max(n, 4), 1);
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 5.5) tree(x, cz + BD / 2 - 2.4, .8);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, y + 7.6, kz), door: new THREE.Vector3(cx, y, kz + 4), gate: new THREE.Vector3(cx, y, cz + 8), roof: y + 5 });
     p.hang = { x0: cx - 15, x1: cx + 2, z0: cz - 5.5, z1: cz + 12 };
     p.idleSpot = (k) => new THREE.Vector3(cx - 15.5 + (k % 13) * 1.3 + (rnd() - .5) * .3, y, cz - 5.6 + Math.floor(k / 13) * 1.5 + (rnd() - .5) * .3);
@@ -484,7 +511,7 @@ export function createCity(host, worldIn, opts = {}) {
       if (bars.length) { const gm = new THREE.Mesh(mergeGeometries(bars), new THREE.MeshStandardMaterial({ color: '#E8B53A', roughness: .28, metalness: .85, envMapIntensity: 1.5 })); gm.castShadow = true; gm.userData.pick = { t: 'prop', k: 'vault', place: p.id }; root.add(gm); pickables.push(gm); }
     }
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 6) tree(x, cz + BD / 2 - 2.2, .8);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, top + 5.4, tz), door: new THREE.Vector3(cx, y, tz + td / 2 + 3), gate: new THREE.Vector3(cx, y, cz + 9), roof: top + 2, crown, floorsN: floors });
     p.hang = { x0: cx - 4.5, x1: cx + 5, z0: cz - 1, z1: cz + 12 };
     p.idleSpot = (k, nIdle) => { const a = k / Math.max(1, nIdle) * Math.PI * 1.5 - Math.PI * .75; return new THREE.Vector3(cx + Math.cos(a) * 2.4, y, cz + .5 + Math.sin(a) * 1.4); };
@@ -508,7 +535,7 @@ export function createCity(host, worldIn, opts = {}) {
     B.add(new THREE.CylinderGeometry(2.2, 2.4, .3, 28), '#E8E3DC', cx - 8, y + .15, cz + 6);
     tree(cx - 8, cz + 6, 1, y + .3);
     for (let x = cx - BW / 2 + 2; x < cx + BW / 2; x += 6) tree(x, cz + BD / 2 - 2.2, .8);
-    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: GLASS, cast: false }));
+    addPickMeshes(p, B.flush(root, { mat: placeMat(p) }), G.flush(root, { mat: glassFor(p), cast: false }));
     Object.assign(p, { anchor: new THREE.Vector3(cx, top + 4.4, oz), door: new THREE.Vector3(cx, y, oz + od / 2 + 2.4), gate: new THREE.Vector3(cx, y, cz + 9), roof: top + 1 });
     p.hang = { x0: cx - 6, x1: cx + 4, z0: cz - 2, z1: cz + 11 };
     p.idleSpot = (k) => new THREE.Vector3(cx - 4 + (k % 6) * 1.4, y, cz - 1.5 + Math.floor(k / 6) * 1.4);
@@ -597,7 +624,13 @@ export function createCity(host, worldIn, opts = {}) {
   const carBlob = new THREE.InstancedMesh(new THREE.PlaneGeometry(4.4, 2.5).rotateX(-Math.PI / 2), BLOB, CAP_V);
   const carHead = new THREE.InstancedMesh(new THREE.SphereGeometry(.22, 14, 10).translate(-.05, 1.12, -.3), new THREE.MeshStandardMaterial({ roughness: .7 }), CAP_V);
   const carTorso = new THREE.InstancedMesh(RB(.4, .42, .44, .14).translate(-.05, .78, -.3), new THREE.MeshStandardMaterial({ roughness: .7 }), CAP_V);
-  const carIMs = [carBody, carCab, carDet, carBlob, carHead, carTorso];
+  // night: headlights, tail lights and a soft beam on the road (only for cars that are moving)
+  const beamTex = canvasTex((x, w, h) => { const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(255,230,170,.55)'); g.addColorStop(1, 'rgba(255,230,170,0)'); x.fillStyle = g; x.beginPath(); x.moveTo(0, h * .38); x.lineTo(w, 0); x.lineTo(w, h); x.lineTo(0, h * .62); x.closePath(); x.fill(); }, 256, 128);
+  const carLamp = new THREE.InstancedMesh(mergeGeometries([plain(new THREE.BoxGeometry(.08, .16, .36).translate(1.73, .66, -.5)), plain(new THREE.BoxGeometry(.08, .16, .36).translate(1.73, .66, .5))]), new THREE.MeshStandardMaterial({ color: '#FFF4D6', emissive: '#FFE3A6', emissiveIntensity: 2.2 }), CAP_V);
+  const carTail = new THREE.InstancedMesh(mergeGeometries([plain(new THREE.BoxGeometry(.08, .14, .32).translate(-1.73, .7, -.5)), plain(new THREE.BoxGeometry(.08, .14, .32).translate(-1.73, .7, .5))]), new THREE.MeshStandardMaterial({ color: '#D3262B', emissive: '#FF2D2D', emissiveIntensity: 1.6 }), CAP_V);
+  const carBeam = new THREE.InstancedMesh(new THREE.PlaneGeometry(6.5, 4.2).rotateX(-Math.PI / 2).translate(4.9, .06, 0), new THREE.MeshBasicMaterial({ map: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), CAP_V);
+  for (const m of [carLamp, carTail, carBeam]) m.visible = false;
+  const carIMs = [carBody, carCab, carDet, carBlob, carHead, carTorso, carLamp, carTail, carBeam];
   for (const m of carIMs) { m.count = 0; m.frustumCulled = false; if (m !== carBlob && m !== carCab) { m.castShadow = true; m.receiveShadow = true; } root.add(m); }
   carBody.userData.pick = carCab.userData.pick = carDet.userData.pick = { t: 'vehicle', inst: true };
   carHead.userData.pick = carTorso.userData.pick = { t: 'driver', inst: true };
@@ -624,6 +657,7 @@ export function createCity(host, worldIn, opts = {}) {
     carBody.setMatrixAt(f.i, _m); carCab.setMatrixAt(f.i, _m); carDet.setMatrixAt(f.i, _m);
     const drv = moving(f.v) || f.packet;
     carHead.setMatrixAt(f.i, drv ? _m : _Z); carTorso.setMatrixAt(f.i, drv ? _m : _Z);
+    carLamp.setMatrixAt(f.i, drv ? _m : _Z); carTail.setMatrixAt(f.i, drv ? _m : _Z); carBeam.setMatrixAt(f.i, drv ? _m : _Z);
     _s.set(1, 1, 1); _v.set(f.pos.x, f.y + .02, f.pos.z); _m.compose(_v, _q, _s); carBlob.setMatrixAt(f.i, _m);
   }
   const flushCars = () => { for (const m of carIMs) m.instanceMatrix.needsUpdate = true; };
@@ -771,7 +805,7 @@ export function createCity(host, worldIn, opts = {}) {
     const lk = o.data?.look ?? o.look ?? {};
     const p = {
       id: list.length, pos: new THREE.Vector3(), vel: new THREE.Vector3(), yaw: rnd() * 6, y: .25, ph: rnd() * 6, wait: rnd() * 3, speed: 0,
-      pose: 'stand', look: 0, lookT: 0, hidden: false, react: 0, ...o,
+      pose: 'stand', lookT: 0, hidden: false, react: 0, ...o, look: 0, // `look` is the head-turn angle; the appearance object passed as `look` lives in `lk`
       style: lk.style ?? (rnd() < .4 ? 'long' : 'short'), skin: lk.skin ?? SKIN[Math.floor(rnd() * SKIN.length)], hairC: lk.hair ?? HAIR[Math.floor(rnd() * HAIR.length)],
       pants: lk.pants ?? PANTS[Math.floor(rnd() * PANTS.length)], scale: lk.scale ?? 1,
     };
@@ -1310,6 +1344,24 @@ export function createCity(host, worldIn, opts = {}) {
   host.querySelector('[data-zin]').onclick = () => zoomBy(1.4); host.querySelector('[data-zout]').onclick = () => zoomBy(1 / 1.4);
   host.querySelector('[data-rotl]').onclick = () => rotateBy(-Math.PI / 2); host.querySelector('[data-rotr]').onclick = () => rotateBy(Math.PI / 2);
   host.querySelector('[data-home]').onclick = () => { if (inside) return exitBuilding(); if (mode !== 'map') setMode('map'); if (view) closeDrawer(); else viewAll(); };
+  // ---------------------------------------------------------------- night: the same city under moonlight, lit from the inside
+  // Nothing is rebuilt: the lights change, windows glow with each place's activity, street lamps and headlights come on.
+  let night = false;
+  const DAY = { sun: PAL.sun, hemi: PAL.hemi, sunC: PAL.night ? '#AFC6FF' : '#FFF1E2', hemiC: '#FFFFFF', groundC: PAL.night ? '#223040' : '#E9DED3', env: PAL.night ? .25 : .5, exp: 1.04 };
+  const activityOf = (p) => { const n = p.people.length; if (!n) return p.kind === 'shop' ? .5 : .15; return p.people.filter((q) => q.state === 'wander' || q.state === 'work' || q.state === 'drive').length / n; };
+  function setNight(on, opts = {}) {
+    if (PAL.night) return; night = !!on; host.classList.toggle('cold-night', night);
+    const bg = night ? PALETTES.night.bg : PAL.bg; host.style.setProperty('--bg-a', bg[0]); host.style.setProperty('--bg-b', bg[1]);
+    sun.intensity = night ? .38 : DAY.sun; sun.color.set(night ? '#8FA6D6' : DAY.sunC);
+    hemi.intensity = night ? .42 : DAY.hemi; hemi.color.set(night ? '#5E7392' : DAY.hemiC); hemi.groundColor.set(night ? '#0F1620' : DAY.groundC);
+    scene.environmentIntensity = night ? .12 : DAY.env; renderer.toneMappingExposure = night ? .92 : DAY.exp;
+    for (const { p, m } of GLASSES) { m.emissiveIntensity = night ? .45 + 1.1 * activityOf(p) : 0; m.color.set(night ? '#2B3949' : PAL.glass); m.roughness = night ? .3 : .12; m.metalness = night ? 0 : .35; }
+    lampBulbIM.visible = lampPoolIM.visible = night; carLamp.visible = carTail.visible = carBeam.visible = night;
+    const b = $('night'); if (b) { b.innerHTML = ic(night ? 'sun' : 'moon'); b.title = b.ariaLabel = night ? T.day : T.night; b.classList.toggle('on', night); }
+    if (!opts.quiet) flashTip(`${night ? T.night : T.day}${night ? `<small>${T.litHint}</small>` : ''}`);
+    emit('night', night);
+  }
+  const refreshNight = () => { if (night) setNight(true, { quiet: true }); };
   function setVideo(on) { videoMode = on; app.classList.toggle('video', on); renderDock(); later(() => { resize(); if (!inside) viewAll(.6); }, 60); }
 
   // ============================================================================ hover + click in the city (and inside)
@@ -1362,6 +1414,7 @@ export function createCity(host, worldIn, opts = {}) {
       if (h.k === 'vault') return `${esc(p?.vaultTitle ?? T.vault)}${sub(p?.vaultText)}`;
       if (h.k === 'ghost') return `${T.ghost}${sub(p?.nextFloor)}`;
       if (h.k === 'gate') return `${T.gate}${sub(p?.shown)}`;
+      if (h.k === 'lamp') return `${T.lamp}${sub(T.lampSub)}`;
       return `${esc(h.label ?? T[h.k] ?? h.k)}${sub(h.sub)}`;
     }
     return '';
@@ -1373,6 +1426,7 @@ export function createCity(host, worldIn, opts = {}) {
     if (h.k === 'gate') { const p = placeById.get(h.place); p._gate = 2.4; return; }
     if (h.k === 'fountain') { splash = 1.2; return; }
     if (h.k === 'light') { flashTip(tipText(h)); return; }
+    if (h.k === 'lamp') { setNight(!night); return; }
     if (h.k === 'bench') { say(() => new THREE.Vector3(park.cx, 2.4, park.cz), W.meta.locale.startsWith('pt') ? 'Senta aqui um pouco 🙂' : 'Have a seat 🙂', 2.5); return; }
     if (h.k === 'plant' && h.obj) { h.obj.userData.w = 1; return; }
     if (h.k === 'heli' && mode === 'map' && !inside) return open({ t: 'prop', k: 'heli' }, { fly: false });
@@ -1948,7 +2002,7 @@ export function createCity(host, worldIn, opts = {}) {
     for (const v of added.splice(Math.max(0, CAP_V - FLEET.length))) { console.warn('[city] vehicle capacity reached, reload to show', v.id); }
     for (const v of added) { addFleet(v); const p = placeById.get(v.place); const b = p?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } changed.add(v); }
     for (const v of changed) { if (!moving(v) && !v._f.bay) { const b = placeById.get(v.place)?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } } syncVehicle(v); }
-    paintBays(); refreshCards(); refreshSigns(); renderDrawer();
+    paintBays(); refreshCards(); refreshSigns(); renderDrawer(); refreshNight();
     for (const r of Object.values(ROOMS)) if (r !== inside) r.dirty = true;
     emit('update', patch);
   }
@@ -2016,7 +2070,7 @@ export function createCity(host, worldIn, opts = {}) {
   }
 
   // ============================================================================ build everything
-  buildBase(); buildLights(); buildPlaces(); borderTrees();
+  buildBase(); buildLights(); buildStreetLamps(); buildPlaces(); borderTrees();
   VEH.forEach(addFleet); assignBays(); FLEET.forEach((f) => { if (!moving(f.v)) parkAt(f); }); paintBays(); setupTraffic();
   placePeople(); buildCompanions(); crowd = new Crowd(PAWNS, root, 'city'); pickables.push(...crowd.pick);
   buildHeli(); HELI_PLACE = PLACES.find((p) => p.kind === 'tower')?.id ?? park.id; flushTrees(); buildCards(); buildHalos();
@@ -2120,6 +2174,8 @@ export function createCity(host, worldIn, opts = {}) {
 
   // ============================================================================ start + public API
   renderKpis(); renderDock(); renderAsOf(); renderBanner(); startSources();
+  $('night')?.addEventListener('click', () => setNight(!night));
+  { const n = W.meta.night; const h = new Date().getHours(); if (n === true || (n === 'auto' && (h >= 18 || h < 6))) setNight(true, { quiet: true }); }
   for (const f of FLEET) writeCar(f); flushCars();
   ocam.zoom = fitZoom() * .7; ocam.updateProjectionMatrix(); viewAll(1.8);
   later(() => ($('hint').style.opacity = 0), 9000);
@@ -2133,8 +2189,9 @@ export function createCity(host, worldIn, opts = {}) {
       const az = o.az ?? (o.daz != null ? AZ0 + o.daz : cur.theta), z = o.zoom ?? (o.zoomFit != null ? fitZoom() * o.zoomFit : ocam.zoom);
       flyTo(new THREE.Vector3(o.x ?? controls.target.x, 0, o.z ?? controls.target.z), z, o.dur ?? 1.2, az); },
     walkTo: (x, z) => { if (mode !== 'walk') setMode('walk'); walkGoTo(x, z); },
+    setNight: (on) => setNight(on),
     pick: (x, y) => { const r = canvas.getBoundingClientRect(); const h = pickAt({ clientX: r.left + x, clientY: r.top + y }); return h ? { ...h, tip: tipText(h).replace(/<[^>]+>/g, ' · ') } : null; },
-    state: () => ({ mode, view, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
+    state: () => ({ mode, view, night, inside: inside?.place.id ?? null, me: [+ME.pos.x.toFixed(2), +ME.pos.z.toFixed(2)], touring: !!tour, replaying: !!replay, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
     // test helper: run traffic for `sec` seconds and report the closest two cars got and the longest stop
     sim(sec) { const mv = FLEET.filter((f) => f.r); let minD = 1e9, maxStuck = 0; const stuck = new Map(); for (let t = 0; t < sec; t += .05) { for (const f of mv) driveCar(f, .05, t); for (let i = 0; i < mv.length; i++) for (let j = i + 1; j < mv.length; j++) minD = Math.min(minD, mv[i].pos.distanceTo(mv[j].pos)); for (const f of mv) { const s = f.r.v < .05 ? (stuck.get(f) ?? 0) + .05 : 0; stuck.set(f, s); maxStuck = Math.max(maxStuck, s); } } return { minD: +minD.toFixed(2), maxStuck: +maxStuck.toFixed(1) }; },
     destroy() {

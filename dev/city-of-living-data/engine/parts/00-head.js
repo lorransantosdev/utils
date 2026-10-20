@@ -20,6 +20,7 @@ const STR = {
     present: 'Apresentar', stop: 'Parar', replay: 'Replay', video: 'Modo vídeo', videoOff: 'Sair do modo vídeo', more: 'Mais',
     actions: 'Precisa de atenção', urgent: 'urgentes', vehicles: 'Veículos', people: 'Pessoas', todo: 'Pendências', places: 'Lugares', nothing: 'Nada pendente.',
     walkThere: 'Ir a pé até lá', fly: 'Voar de helicóptero', seeAll: 'Ver todas', seeVehicle: 'Ver o veículo', seeDriver: 'Ver o motorista', seePlace: 'Abrir o lugar', talk: 'Falar',
+    night: 'Modo noturno', day: 'Modo diurno', litHint: 'janela acesa = gente ativa', lamp: 'Poste', lampSub: 'clique para ligar/desligar a noite',
     asOf: 'Retrato de', live: 'Ao vivo', stale: 'Dados atrasados', noData: 'Sem dados', close: 'Fechar', zoomIn: 'Aproximar', zoomOut: 'Afastar', rotL: 'Girar para a esquerda', rotR: 'Girar para a direita', home: 'Ver tudo',
     hintMap: 'Arraste para mover · roda do mouse para zoom · clique em qualquer coisa', hintInside: 'Clique no chão para andar · clique em tudo · tapete = sair',
     keysWalk: '<b>A pé</b><span>clique no chão para ir até lá</span><span><kbd>W A S D</kbd> andar · <kbd>Shift</kbd> correr</span><span>arraste para olhar · clique nas pessoas</span><span><kbd>E</kbd> entrar · <kbd>F</kbd> helicóptero · <kbd>Esc</kbd> mapa</span>',
@@ -40,6 +41,7 @@ const STR = {
     present: 'Present', stop: 'Stop', replay: 'Replay', video: 'Video mode', videoOff: 'Exit video mode', more: 'More',
     actions: 'Needs attention', urgent: 'urgent', vehicles: 'Vehicles', people: 'People', todo: 'To do', places: 'Places', nothing: 'Nothing pending.',
     walkThere: 'Walk there', fly: 'Fly the helicopter', seeAll: 'See all', seeVehicle: 'See the vehicle', seeDriver: 'See the driver', seePlace: 'Open the place', talk: 'Talk',
+    night: 'Night mode', day: 'Day mode', litHint: 'lit window = people active', lamp: 'Street lamp', lampSub: 'click to switch night on/off',
     asOf: 'Snapshot of', live: 'Live', stale: 'Data is late', noData: 'No data', close: 'Close', zoomIn: 'Zoom in', zoomOut: 'Zoom out', rotL: 'Rotate left', rotR: 'Rotate right', home: 'See everything',
     hintMap: 'Drag to move · scroll to zoom · click anything', hintInside: 'Click the floor to walk · click everything · door mat = exit',
     keysWalk: '<b>Walking</b><span>click the ground to go there</span><span><kbd>W A S D</kbd> move · <kbd>Shift</kbd> run</span><span>drag to look · click people</span><span><kbd>E</kbd> enter · <kbd>F</kbd> helicopter · <kbd>Esc</kbd> map</span>',
@@ -71,6 +73,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const wrapA = (a) => ((a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
 const mix = (a, b, k) => { const c = new THREE.Color(a).lerp(new THREE.Color(b), k); return '#' + c.getHexString(); };
 const ICONS = {
+  moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', minus: '<path d="M5 12h14"/>', close: '<path d="m9 5 7 7-7 7"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
   rotl: '<path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v5h5"/>', rotr: '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>',
   home: '<path d="M4 11 12 4l8 7v9H4z"/>', chev: '<path d="m9 5 7 7-7 7"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',

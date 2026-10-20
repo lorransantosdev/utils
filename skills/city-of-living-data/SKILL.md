@@ -107,7 +107,9 @@ references/use-cases.md. **Gate:** the user approves.
   props; breadcrumbs; KPI bar with count-up; hide-names; live chip ("Live · 3 min ago" / late /
   no data); a slim banner for a daily summary;
 - reactions, speech bubbles, follow, ride along, walk (WASD), helicopter, tour, journeys with a
-  courier, timeline replay, 9:16 video frame, phone bottom sheet, reduced motion, `destroy()`.
+  courier, timeline replay, 9:16 video frame, phone bottom sheet, reduced motion, `destroy()`;
+- night mode (moon button, any street lamp, `meta.night`): lamps, headlights, and windows that
+  glow with each place's activity — a data-bound skyline for videos and wall screens.
 API: references/engine-api.md. Extend it in its own style (references/visual-style.md).
 
 ## Style non-negotiables

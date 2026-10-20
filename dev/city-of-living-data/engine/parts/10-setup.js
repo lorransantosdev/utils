@@ -34,6 +34,7 @@ export function createCity(host, worldIn, opts = {}) {
       <div class="c-kpis c-glass" data-kpis></div>
       <div class="c-side"><button class="c-pill c-glass" data-names hidden></button><span class="c-live c-glass" data-live><i></i><span data-asof></span></span></div>
     </header>
+    <div class="c-banner c-glass" data-banner hidden></div>
     <nav class="c-dock c-glass" data-dock></nav>
     <div class="c-cam c-glass">
       <button data-zin title="${T.zoomIn}" aria-label="${T.zoomIn}">${ic('plus')}</button><button data-zout title="${T.zoomOut}" aria-label="${T.zoomOut}">${ic('minus')}</button><hr>

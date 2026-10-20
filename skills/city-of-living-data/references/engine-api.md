@@ -35,7 +35,7 @@ night palette) to it.
 | `rotateBy(rad)` / `zoomBy(factor)` | animated camera moves (Q/E use ±π/2) |
 | `fly({ x, z, zoom \| zoomFit, az \| daz, dur })` | scripted camera move: target point, zoom (absolute, or `zoomFit` × the fit-all zoom), azimuth (absolute, or `daz` from the default iso angle), seconds (`0` = cut). Missing fields keep their current value — handy for promo videos |
 | `walkTo(x, z)` | switch to walk mode and walk the player to a point (same as clicking the ground) |
-| `update(patch)` | live data: merge `places`, `vehicles`, `people` by id; replace `kpis`, `actions`; set `asOf` (see below) |
+| `update(patch)` | live data: merge `places`, `vehicles`, `people` by id; replace `kpis`, `actions`; set `asOf`, `banner` (see below) |
 | `tour(steps?, label?)` | start the presentation, or play any list of steps (a journey) |
 | `stopTour()` / `next()` | stop / jump to the next step |
 | `replay()` / `stopReplay()` | play `world.timeline` / stop and restore |
@@ -64,6 +64,7 @@ city.update({
   vehicles: [{ id: 'c7', state: 'parked' }, { id: 'c99', place: '2', state: 'road', name: 'Mobi', color: '#C3C8CF' }],
   places: [{ id: 'payments', status: 'down', card: 'error rate 7%' }],
   kpis: [ … ], actions: [ … ], asOf: new Date().toISOString(),
+  banner: { label: 'Today', text: 'Orders +12 % vs the 7-day average', tone: 'green', at: new Date().toISOString() },
 });
 ```
 - A vehicle that switches between a moving and a parked state leaves its bay for the road or comes

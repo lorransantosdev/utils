@@ -32,6 +32,7 @@ const STR = {
     pet: 'Seu cachorro. Vai aonde você for.', you: 'Você', onRoad: 'na rua', inLot: 'no pátio', bays: 'vagas', of: 'de', used: 'usadas', free: 'livres', capacity: 'Vagas',
     tour: 'Apresentação', step: 'Passo', replayOf: 'Replay', speed: 'por segundo', day: (d) => d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
     floors: 'andares', people_: 'pessoas', active: 'ativos', inactive: 'sem acesso recente',
+    ago: (m) => (m < 1 ? 'agora' : m < 60 ? `há ${Math.round(m)} min` : m < 60 * 36 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} d`),
   },
   en: {
     map: 'Map', walk: 'Walk', heli: 'Helicopter', overview: 'Overview', hideNames: 'Hide names', namesHidden: 'Names hidden',
@@ -51,6 +52,7 @@ const STR = {
     pet: 'Your dog. Goes wherever you go.', you: 'You', onRoad: 'on the road', inLot: 'in the lot', bays: 'bays', of: 'of', used: 'used', free: 'free', capacity: 'Bays',
     tour: 'Presentation', step: 'Step', replayOf: 'Replay', speed: 'per second', day: (d) => d.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' }),
     floors: 'floors', people_: 'people', active: 'active', inactive: 'no recent access',
+    ago: (m) => (m < 1 ? 'just now' : m < 60 ? `${Math.round(m)} min ago` : m < 60 * 36 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`),
   },
 };
 
@@ -143,6 +145,7 @@ export function createCity(host, worldIn, opts = {}) {
       <div class="c-kpis c-glass" data-kpis></div>
       <div class="c-side"><button class="c-pill c-glass" data-names hidden></button><span class="c-live c-glass" data-live><i></i><span data-asof></span></span></div>
     </header>
+    <div class="c-banner c-glass" data-banner hidden></div>
     <nav class="c-dock c-glass" data-dock></nav>
     <div class="c-cam c-glass">
       <button data-zin title="${T.zoomIn}" aria-label="${T.zoomIn}">${ic('plus')}</button><button data-zout title="${T.zoomOut}" aria-label="${T.zoomOut}">${ic('minus')}</button><hr>
@@ -1939,6 +1942,7 @@ export function createCity(host, worldIn, opts = {}) {
     if (patch.kpis) { W.kpis = patch.kpis; renderKpis(); }
     if (patch.actions) { ACTS.length = 0; patch.actions.forEach((a, i) => ACTS.push({ sev: 'amber', ...a, id: String(a.id ?? 'a' + i) })); }
     if (patch.asOf) { W.meta.asOf = patch.asOf; renderAsOf(); }
+    if ('banner' in patch) { W.meta.banner = patch.banner; renderBanner(); }
     reindex(); applyNames();
     for (const v of added.splice(Math.max(0, CAP_V - FLEET.length))) { console.warn('[city] vehicle capacity reached, reload to show', v.id); }
     for (const v of added) { addFleet(v); const p = placeById.get(v.place); const b = p?.bays?.find((x) => !x.vehicle); if (b) { b.vehicle = v.id; v._f.bay = b; } changed.add(v); }
@@ -1960,12 +1964,24 @@ export function createCity(host, worldIn, opts = {}) {
     });
     return { [src.into]: list };
   }
+  // a CSV (e.g. a Google Sheet published to the web) → rows as objects, first line = headers
+  function parseCsv(text) {
+    const rows = [], sep = src_sep(text); let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) { const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+      else if (c === '"') q = true; else if (c === sep) { row.push(cell); cell = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; } else cell += c; }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    const head = (rows.shift() ?? []).map((h) => h.trim());
+    return rows.filter((r) => r.some((x) => x !== '')).map((r) => Object.fromEntries(head.map((h, i) => { const v = (r[i] ?? '').trim(); return [h, v !== '' && !isNaN(v) && !/^0\d/.test(v) ? +v : v]; })));
+  }
+  const src_sep = (t) => (t.split('\n')[0].split(';').length > t.split('\n')[0].split(',').length ? ';' : ',');
   async function poll(src) {
     try {
       let rows;
       if (src.type === 'static') rows = src.rows ?? src.patch;
+      else if (src.type === 'csv') { const r = await fetch(src.url, { headers: src.headers ?? {}, credentials: src.credentials ?? 'same-origin', cache: 'no-store' }); if (!r.ok) throw new Error(r.status); rows = parseCsv(await r.text()); }
       else if (src.type === 'supabase') { const r = await fetch(`${src.url.replace(/\/$/, '')}/rest/v1/${src.table}?select=${encodeURIComponent(src.select ?? '*')}`, { headers: { apikey: src.anonKey, Authorization: `Bearer ${src.anonKey}` } }); if (!r.ok) throw new Error(r.status); rows = await r.json(); }
-      else { const r = await fetch(src.url, { headers: src.headers ?? {}, credentials: src.credentials ?? 'same-origin' }); if (!r.ok) throw new Error(r.status); rows = await r.json(); }
+      else { const r = await fetch(src.url, { headers: src.headers ?? {}, credentials: src.credentials ?? 'same-origin', cache: 'no-store' }); if (!r.ok) throw new Error(r.status); rows = await r.json(); }
       update(rowsToPatch(src, rows)); live.ok++; live.last = performance.now(); live.err = null;
     } catch (e) { live.err = String(e.message ?? e); }
     renderAsOf();
@@ -1976,13 +1992,23 @@ export function createCity(host, worldIn, opts = {}) {
       if (src.type === 'ws') { const ws = new WebSocket(src.url); ws.onmessage = (m) => { try { update(rowsToPatch(src, JSON.parse(m.data))); live.ok++; live.last = performance.now(); renderAsOf(); } catch {} }; ws.onerror = () => { live.err = 'ws'; renderAsOf(); }; SRC_TIMERS.push({ close: () => ws.close() }); continue; }
       poll(src); if (src.type !== 'static') { const id = setInterval(() => poll(src), src.intervalMs ?? 15000); SRC_TIMERS.push({ close: () => clearInterval(id) }); }
     }
+    if (W.data?.sources?.length) { const id = setInterval(renderAsOf, 30000); SRC_TIMERS.push({ close: () => clearInterval(id) }); }  // "x min ago" keeps counting
+  }
+  // a slim line under the header: a daily summary, a notice, whatever the data wants to say today
+  function renderBanner() {
+    const el = $('banner'), b = W.meta.banner, o = typeof b === 'string' ? { text: b } : b;
+    el.hidden = !o?.text; if (!o?.text) return;
+    el.className = `c-banner c-glass ${['green', 'amber', 'red', 'blue'].includes(o.tone) ? o.tone : ''}`;
+    el.innerHTML = `${o.label ? `<b>${esc(o.label)}</b>` : ''}<span>${esc(o.text)}</span>${o.at ? `<small>${esc(T.ago((Date.now() - +new Date(o.at)) / 60000))}</small>` : ''}`;
   }
   function renderAsOf() {
     const el = $('live'), txt = $('asof'), srcs = W.data?.sources?.filter((s) => s.type !== 'static') ?? [];
     if (srcs.length) {
-      const maxGap = Math.max(...srcs.map((s) => s.intervalMs ?? 15000)) * 3, stale = live.err || (live.last && performance.now() - live.last > maxGap);
+      // late when a request failed, when nothing arrived for 3 polls, or when the data's own asOf is older than staleAfterMs (30 min)
+      const maxGap = Math.max(...srcs.map((s) => s.intervalMs ?? 15000)) * 3, ageMin = W.meta.asOf ? (Date.now() - +new Date(W.meta.asOf)) / 60000 : null;
+      const stale = live.err || (live.last && performance.now() - live.last > maxGap) || (ageMin != null && ageMin > (W.data.staleAfterMs ?? 1800000) / 60000);
       el.classList.toggle('stale', !!stale); el.classList.toggle('nodata', !live.ok);
-      txt.textContent = !live.ok ? T.noData : stale ? T.stale : T.live; return;
+      txt.textContent = (!live.ok ? T.noData : stale ? T.stale : T.live) + (live.ok && ageMin != null && !isNaN(ageMin) ? ` · ${T.ago(Math.max(0, ageMin))}` : ''); return;
     }
     const d = W.meta.asOf ? new Date(W.meta.asOf) : null;
     el.hidden = !d; if (d) txt.textContent = `${T.asOf} ${d.toLocaleDateString(LOC)} ${d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })}`;
@@ -2092,7 +2118,7 @@ export function createCity(host, worldIn, opts = {}) {
   }
 
   // ============================================================================ start + public API
-  renderKpis(); renderDock(); renderAsOf(); startSources();
+  renderKpis(); renderDock(); renderAsOf(); renderBanner(); startSources();
   for (const f of FLEET) writeCar(f); flushCars();
   ocam.zoom = fitZoom() * .7; ocam.updateProjectionMatrix(); viewAll(1.8);
   later(() => ($('hint').style.opacity = 0), 9000);

@@ -7,7 +7,9 @@ sources** that patch it while the page is open.
 ## Contents
 1. Snapshot converter (recommended start) · 2. Live sources (`data.sources`) · 3. `update(patch)`
 4. Shaping the data (SQL views) · 5. Supabase · 6. Local read-only server · 7. Multi-tenant
-8. Privacy · 9. Workflow · 10. Troubleshooting
+8. Privacy · 9. Workflow · 10. Troubleshooting · 11. The no-backend loop (sync script → data.json)
+12. Where the numbers come from (Stripe, Shopify, Square, Sheets…) · 13. Keep it running · 14. Online for a team
+15. A daily summary banner
 
 ## 1. Snapshot converter (recommended start)
 A small script reads rows and writes `world.json`; the scaffold turns it into a page. It's where
@@ -51,15 +53,17 @@ Declared in `world.json`; the engine polls or listens and merges what arrives wi
 
 | field | meaning |
 |---|---|
-| `type` | `http` (GET JSON; `headers`, `credentials` default `same-origin`) · `supabase` (REST: `url/rest/v1/<table>?select=<select>` with the anon key) · `sse` / `ws` (each message is JSON) · `static` (`rows` or `patch` inline — for tests and public demos) |
+| `type` | `http` (GET JSON; `headers`, `credentials` default `same-origin`) · `csv` (GET a CSV, first row = headers, numbers parsed — a Google Sheet "published to the web") · `supabase` (REST: `url/rest/v1/<table>?select=<select>` with the anon key) · `sse` / `ws` (each message is JSON) · `static` (`rows` or `patch` inline — for tests and public demos) |
 | `intervalMs` | polling period for `http`/`supabase` (default 15000) |
 | `into` | `world` (payload is already a patch) or `places` / `vehicles` / `people` (payload is rows, an array or `{ rows: [...] }`) |
 | `key` | row field used as the entity `id` (default `id`) |
 | `map` | entity field ← row column, or a `"{template}"` with `{column}` placeholders |
 | `stateMap` | rewrites the mapped `state`; `"*"` is the fallback |
 
-The live chip: green "Live" after the first success; amber "Data is late" when a request failed or
-nothing arrived for 3 × the largest `intervalMs`; grey "No data" until the first success.
+The live chip: green "Live · 2 min ago" after the first success (the age comes from the patch's
+`asOf`, so put the sync time in it); amber "Data is late" when a request failed, nothing arrived for
+3 × the largest `intervalMs`, or `asOf` is older than `data.staleAfterMs` (default 30 min); grey
+"No data" until the first success. Chip and banner never show secrets: there are none in the page.
 
 ## 3. `update(patch)` — the one way data changes
 `city.update(patch)` (also what sources call) merges by `id`:
@@ -71,7 +75,8 @@ nothing arrived for 3 × the largest `intervalMs`; grey "No data" until the firs
 | `people: [{ id, ...fields }]` | merges fields (lines, page, state text); new people are listed but drawn after a reload |
 | `kpis: [...]` | replaces the KPI bar |
 | `actions: [...]` | replaces the to-do list |
-| `asOf` | updates the snapshot date |
+| `asOf` | the time the numbers were read (ISO); feeds "updated x min ago" and the late/stale check |
+| `banner` | a slim line under the header: a string, or `{ text, label, tone: green·amber·red·blue, at }`; `null` removes it (§15) |
 After a patch the cards, bays, open page and signs refresh; rooms rebuild next time you enter.
 
 ## 4. Shaping the data (recommended)
@@ -166,3 +171,71 @@ Never grant document numbers, phones, e-mails, addresses, plates, payloads or ga
 | Chip amber "Data is late" | a request failed or nothing arrived for 3 × `intervalMs` |
 | KPIs don't change | sources must send the whole `kpis` array (it replaces the bar) |
 | Person added live isn't drawn | new people/places are drawn on reload; merge-only fields update live |
+
+## 11. The no-backend loop (sync script → data.json → page)
+For an owner's dashboard that must run on a laptop with no server to deploy, three small pieces
+work as a loop — the city never talks to Stripe or your database itself:
+
+1. **`sync.mjs`** (template in `assets/template/`) asks each source for the latest numbers,
+   read-only, every N minutes, and writes **`data.json`** as a world patch (`kpis`, `vehicles`,
+   `actions`, `asOf`…). On failure it keeps the last good file and writes the reason to `sync.log`.
+2. **`data.json`** holds totals and counts only — never names, e-mails, addresses or card data.
+3. **The city polls it**: `"data": { "sources": [{ "id": "file", "type": "http", "url": "data.json", "intervalMs": 60000, "into": "world" }] }`.
+   Browsers refuse to read a file next to an opened `.html`, so serve the folder: `node sync.mjs --serve 3000`.
+
+```bash
+cp <skill>/assets/template/{sync.mjs,.env.example,.gitignore} .   # then: cp .env.example .env and fill it in yourself
+node sync.mjs --demo                 # first run with demo numbers: see the loop work before any key exists
+node sync.mjs --every 5m --serve 3000   # the real thing: http://127.0.0.1:3000/city.html
+```
+Keys live only in `.env` (git-ignored). Never ask the user to paste a key into the chat: tell them
+how to open `.env` and fill it in. The script never prints keys (errors are redacted). The only part
+to edit is `toPatch(raw)`: numbers in, world patch out — every number traceable to a source, every
+KPI with a comparison, alerts as `actions` with a target. Check 2–3 numbers against the source's own
+dashboard before building anything on them ("this month only?", "net of refunds?").
+
+## 12. Where the numbers come from
+One app rarely has everything: payments in one, stock in another, bookings in a sheet.
+
+| source | gives | read-only access |
+|---|---|---|
+| Stripe | revenue, payments, refunds, customers, products | Dashboard → Developers → API keys → **Create restricted key**, Read on what you need |
+| Shopify | orders, products, stock levels | Settings → Apps and sales channels → Develop apps → app with **read_** scopes only → install → token |
+| Square | sales, items, stock counts, customers | Developer Console → app → Credentials → production token, read scopes |
+| Google Sheets | anything else: stock, deliveries, bookings, targets | File → Share → **Publish to web → CSV** (`type: "csv"` in the page, or `SHEET_CSV_URL` in sync.mjs) |
+| your database | everything | a read-only role / views (§4–§6) |
+| any other app | deliveries, bookings, staff | its API if it has one; else export to a Sheet |
+
+Keys are passwords: never in a chat, a screenshot or the page. Totals and counts only.
+
+## 13. Keep it running
+The loop is live only while the sync keeps going. Put it on a timer and make it survive a reboot:
+- **macOS**: a `launchd` agent (`~/Library/LaunchAgents/com.<name>.city.plist`, `RunAtLoad`,
+  `KeepAlive`) running `node sync.mjs --every 5m --serve 3000`.
+- **Linux**: a user `systemd` service (`Restart=always`), or `@reboot` in `crontab -e`.
+- **Windows**: Task Scheduler → run at log-on, `node.exe sync.mjs --every 5m --serve 3000`.
+Write a short README for the owner: how to open the city, stop/restart the sync, and check
+`sync.log`. Every 5 minutes is far below any provider's rate limit; every minute is fine too.
+Check it's really live: the chip's "x min ago" resets after each sync; change a cell in the sheet
+and watch the card change without a reload; reboot and open the link again.
+
+## 14. Online for a team
+When the city must stay up with the laptop off, host it (Vercel, Netlify, Cloudflare…):
+- the page is static; a tiny serverless function answers `GET /api/city` with the world patch,
+  running the same fetchers with keys from the **host's private environment settings**, cached
+  for ~2 minutes (`Cache-Control: s-maxage=120`) so it's live without a schedule;
+- the page uses `{ "type": "http", "url": "/api/city", "intervalMs": 60000, "into": "world" }`;
+- protect it: password (basic auth in the function + page), or the host's access control. Share
+  the link only with the team — it shows real revenue;
+- the user creates the hosting account; walk them through it one step at a time.
+
+## 15. A daily summary banner
+A scheduled task (e.g. a Claude Code scheduled run every morning) can read today's `data.json`,
+compare it with a kept copy of the last 7 days and write three lines into `summary.json`:
+```json
+{ "banner": { "label": "Today", "text": "Orders +12 % vs the 7-day average · 31 parcels to ship, 9 older than 24 h · no payment failures", "tone": "green", "at": "2026-10-20T07:00:00Z" } }
+```
+Add it as one more source (`{ "type": "http", "url": "summary.json", "intervalMs": 300000, "into": "world" }`)
+or merge it into `data.json`; the city shows it as a slim line under the header (hidden in video and
+presentation modes). Keep a copy of each day's numbers (`history/2026-10-20.json`) so the comparison
+has something to compare with.

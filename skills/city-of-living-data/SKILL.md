@@ -1,6 +1,6 @@
 ---
 name: city-of-living-data
-description: Turns a business, a SaaS or a software system into a living 3D isometric city (three.js) where everything is clickable — places are buildings you can walk into, vehicles drive when they are in use, every person is a little figure that waves and talks with real numbers, and a side panel shows what needs attention. Use it to MONITOR data (admin view of customers, branches, fleet, team, revenue), to EXPLAIN flows (journeys where a courier drives a request between services), to PRESENT (auto tour, a week replayed in a minute, 9:16 video mode), or all of these. First understands the system and the goal, then designs, then generates. Use whenever someone wants a "city of my data", a "living dashboard", a dashboard turned into a game, an isometric or 3D city of a system, visual onboarding of a flow, an admin view to record a video, "cidade 3D", "dashboard em jogo", even without mentioning three.js.
+description: Turns a business, a SaaS or a software system into a living 3D isometric city (three.js) where everything is clickable — places are buildings you can walk into, vehicles drive when they are in use, every person is a little figure that waves and talks with real numbers, and a side panel shows what needs attention. Use it to MONITOR data (admin view of customers, branches, fleet, team, revenue — live from a database, an API, Stripe, Shopify, Square or a Google Sheet, with a no-backend sync loop), to EXPLAIN flows (a courier drives a request between services), to PRESENT (auto tour, a week replayed in a minute, 9:16 video mode), or all of these. Understands the system and the goal first, then designs, then generates. Use whenever someone wants a "city of my data", a "living dashboard", a dashboard turned into a game, an isometric or 3D city of a system, visual onboarding of a flow, an admin view to record a video, "cidade 3D", "dashboard em jogo", even without mentioning three.js.
 ---
 
 # City of Living Data
@@ -67,10 +67,14 @@ references/use-cases.md. **Gate:** the user approves.
    ```bash
    python3 <skill>/scripts/validate.py world.json
    ```
-3. **Wire data** if live (references/data-sources.md, live-data.md): `data.sources` (http,
+3. **Wire data** if live (references/data-sources.md, live-data.md): `data.sources` (http, csv,
    supabase with anon key + RLS, sse, ws, static) mapped with `into/key/map/stateMap`, or push
-   `city.update(patch)` from the app. Read-only always; no secrets in the browser; tenant from
-   auth/RLS, never from the URL. For a copy to share: `scripts/snapshot.py` → static world.
+   `city.update(patch)` from the app. **No backend?** Use the loop in data-sources.md §11: copy
+   `assets/template/sync.mjs` + `.env.example` + `.gitignore`, the user fills `.env` themselves
+   (keys never go through the chat), `node sync.mjs --demo` first, then `--every 5m --serve 3000`;
+   the page polls `data.json` and shows "Live · 2 min ago". Read-only always; no secrets in the
+   browser; totals and counts only; tenant from auth/RLS, never from the URL. For a copy to
+   share: `scripts/snapshot.py` → static world.
 4. **Scaffold** where it runs (references/framework-integration.md):
    ```bash
    python3 <skill>/scripts/scaffold.py --target single  --world world.json --out city.html
@@ -86,7 +90,9 @@ references/use-cases.md. **Gate:** the user approves.
    (needs Playwright: `npm i -D playwright`, pass `--playwright <dir>`; `--three ./node_modules/three` offline.)
    Open the PNGs, check the 5-second questions, the drawer, a room, the phone layout. Fix, re-shoot.
    No browser available? Say so and give the commands.
-6. **Hand over** in a few lines: what was generated, how to open it, what is real vs demo, one next step.
+6. **Hand over** in a few lines: what was generated, how to open it, what is real vs demo, one next
+   step. For a live loop also: how to keep the sync running after a reboot (data-sources.md §13)
+   and how to check `sync.log`.
 
 ## What the engine already does (don't rebuild it)
 `assets/engine/city-of-living-data.js` (ES module, three.js r169 only) — `createCity(host, world)`:
@@ -98,7 +104,8 @@ references/use-cases.md. **Gate:** the user approves.
   (each note opens its action), counter with staff, papers, waiting chairs, desks (empty desk =
   inactive person), plaques, member grid, vault, meeting table; walls facing the camera fade;
 - drawer pages for home, actions, places (tabs: vehicles / people / to do), vehicles, people,
-  props; breadcrumbs; KPI bar with count-up; hide-names; live chip (live / late / no data);
+  props; breadcrumbs; KPI bar with count-up; hide-names; live chip ("Live · 3 min ago" / late /
+  no data); a slim banner for a daily summary;
 - reactions, speech bubbles, follow, ride along, walk (WASD), helicopter, tour, journeys with a
   courier, timeline replay, 9:16 video frame, phone bottom sheet, reduced motion, `destroy()`.
 API: references/engine-api.md. Extend it in its own style (references/visual-style.md).

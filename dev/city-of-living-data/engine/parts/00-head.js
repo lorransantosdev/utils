@@ -32,6 +32,7 @@ const STR = {
     pet: 'Seu cachorro. Vai aonde você for.', you: 'Você', onRoad: 'na rua', inLot: 'no pátio', bays: 'vagas', of: 'de', used: 'usadas', free: 'livres', capacity: 'Vagas',
     tour: 'Apresentação', step: 'Passo', replayOf: 'Replay', speed: 'por segundo', day: (d) => d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }),
     floors: 'andares', people_: 'pessoas', active: 'ativos', inactive: 'sem acesso recente',
+    ago: (m) => (m < 1 ? 'agora' : m < 60 ? `há ${Math.round(m)} min` : m < 60 * 36 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} d`),
   },
   en: {
     map: 'Map', walk: 'Walk', heli: 'Helicopter', overview: 'Overview', hideNames: 'Hide names', namesHidden: 'Names hidden',
@@ -51,6 +52,7 @@ const STR = {
     pet: 'Your dog. Goes wherever you go.', you: 'You', onRoad: 'on the road', inLot: 'in the lot', bays: 'bays', of: 'of', used: 'used', free: 'free', capacity: 'Bays',
     tour: 'Presentation', step: 'Step', replayOf: 'Replay', speed: 'per second', day: (d) => d.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' }),
     floors: 'floors', people_: 'people', active: 'active', inactive: 'no recent access',
+    ago: (m) => (m < 1 ? 'just now' : m < 60 ? `${Math.round(m)} min ago` : m < 60 * 36 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`),
   },
 };
 

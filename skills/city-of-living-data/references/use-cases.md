@@ -79,6 +79,21 @@ in their fleet is a car in the city, every user is a person.
 - Record in **video mode (9:16)**: the dock's phone icon, or `city.video(true)`; ▶ Present runs the
   camera for you; arrow keys skip steps.
 
+## Quick map by business type
+Starting points for the City Brief: what each business becomes, and what each click shows. Swap in
+the user's own objects and numbers; every number must exist in the data (§D1–D3 of understand.md).
+
+| business | the city | click it to see |
+|---|---|---|
+| Online store | warehouse (`shop`, vans = deliveries), customer homes (`cluster`), the office (`tower`) | revenue and orders; stock per product; parcels out; new vs returning customers |
+| Coffee shop / restaurant | the shop (`shop`, counter + queue inside), kitchen (`office`), delivery scooters as vehicles | sales today; items made; best sellers; busiest hour; covers tonight; table turn time |
+| Gym / studio | rooms (`office` each), front desk (`shop`), members walking = checked in this week | check-ins today; class bookings; new members; cancellations |
+| Salon / clinic | chairs or rooms (`office` each, one desk per chair), reception (`shop`), waiting chairs | appointments today; revenue per chair; rebooking rate; no-shows |
+| Agency / services | one `office` per client, HQ `tower`, a cork board of projects inside | projects on time; hours used vs budget; invoices due; pipeline |
+| Trades (builders, plumbers) | depot (`shop`), vans on the road = jobs in progress, job sites (`cluster`) | jobs today; quotes waiting; jobs booked this month; revenue |
+| Real estate | a street of houses (`cluster`, done = sold), the agency (`office`) | listings live; inspections booked; offers; days on market |
+| SaaS | one building per customer (see §1), trials as a `cluster`, your HQ `tower` | MRR, usage this week, overdue invoices, who needs a call |
+
 ## Sizing rules
 | what | limit | if you have more |
 |---|---|---|

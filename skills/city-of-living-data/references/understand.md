@@ -9,6 +9,13 @@ no world.json, no converter, no code.
 4. Step 3 — the data · 5. Step 4 — the people who will use it · 6. Step 5 — what happens on click
 7. The Understanding Summary (gate) · 8. When the user isn't around
 
+## 0. Before you start (for a Monitor city on real data)
+Tick these with the user before Phase 1 goes deep; each missing one becomes a question:
+- ☐ an **empty folder** for the project (everything happens there; `.env` and `data.json` stay git-ignored);
+- ☐ **read-only access** to each source (data-sources.md §12): a restricted key, a read-only DB role, a sheet published as CSV. Read-only = the city can look at numbers, never change anything or move money;
+- ☐ **Node.js** if the no-backend loop will be used (`sync.mjs`); say what will be installed and ask before installing;
+- ☐ optional: a photo or a few sentences about the place — it decides the brand color, the sign subtitles, what the places are called and which kinds they get (the look itself stays the engine's).
+
 ## 1. How to run this phase
 - **Look before you ask.** Read what's available first: attached files, the repository in the
   workspace (`python3 <skill>/scripts/discover.py <repo> -o discovery.json --draft world.draft.json`),

@@ -6,7 +6,7 @@ export type Ref =
   | { t: 'prop'; k: 'heli' | 'vault' | 'ghost'; place?: string };
 export interface CityOptions { seed?: number; reducedMotion?: boolean; preserveDrawingBuffer?: boolean; pixelRatio?: number }
 export interface FlyOptions { x?: number; z?: number; zoom?: number; zoomFit?: number; az?: number; daz?: number; dur?: number }
-export interface CityPatch { places?: any[]; vehicles?: any[]; people?: any[]; kpis?: any[]; actions?: any[]; asOf?: string }
+export interface CityPatch { places?: any[]; vehicles?: any[]; people?: any[]; kpis?: any[]; actions?: any[]; asOf?: string; banner?: string | { text: string; label?: string; tone?: 'green' | 'amber' | 'red' | 'blue'; at?: string } | null }
 export interface CityApi {
   world: any;
   open(ref: Ref, opts?: { fly?: boolean; react?: boolean }): void;

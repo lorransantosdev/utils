@@ -56,7 +56,8 @@ changes. Full examples: `assets/examples/rental.world.json` (monitor a business)
 | `brand` | `{ name: title, color: '#F63B04' }` | `color` paints bands, signs, dock, drawer accents; `logo: { d, viewBox }` is one SVG path used in the brand box, tower signs, rug and HQ cards |
 | `alias` | `Local`/`Place`, `Pessoa`/`Person` | what private names become when hidden: `{ place: 'Branch' }` → "Branch 1" |
 | `hideNamesKey` | per title | localStorage key that remembers the hide-names toggle |
-| `asOf` | – | ISO date; shown as "Snapshot of …" when there are no live sources |
+| `asOf` | – | ISO date; "Snapshot of …" when there are no live sources; with sources it feeds "Live · 3 min ago" and the stale check |
+| `banner` | – | a slim line under the header: a string or `{ text, label, tone, at }` (data-sources.md §15); updatable with `update({ banner })` |
 | `autoplay` | – | `"tour"` starts the presentation 2.5 s after load |
 | `fontDisplay`, `fontBody` | `Sora`, `DM Sans` | fonts used on canvas textures (signs, screens). The HUD fonts come from CSS |
 | `text` | – | override any UI string, e.g. `{ "present": "Play" }` (keys in engine `STR`) |
@@ -266,9 +267,10 @@ running sum of `amount` are shown. At the end every vehicle goes back to its rea
 
 ## 15. data
 
-`data.sources` makes the city live (polling, SSE, WebSocket, Supabase REST, static rows). Each
-source either returns a world patch or rows mapped with `into` / `key` / `map` / `stateMap`.
-Full reference and security rules: data-sources.md.
+`data.sources` makes the city live (polling JSON or CSV, SSE, WebSocket, Supabase REST, static
+rows). Each source either returns a world patch or rows mapped with `into` / `key` / `map` /
+`stateMap`. `data.staleAfterMs` (default 1 800 000 = 30 min): how old `asOf` may be before the chip
+turns amber. Full reference, the no-backend sync loop and security rules: data-sources.md.
 
 ## 16. Minimal example
 

@@ -136,7 +136,7 @@ def main():
             if e.get("vehicle") and str(e["vehicle"]) not in vid: err(f"timeline.events[{k}]: unknown vehicle '{e['vehicle']}'")
             if e.get("state") and e["state"] not in states: err(f"timeline.events[{k}]: unknown state '{e['state']}'")
     for s in (W.get("data") or {}).get("sources", []):
-        if s.get("type") not in ("http", "supabase", "sse", "ws", "static"): err(f"data source '{s.get('id')}': type must be http|supabase|sse|ws|static")
+        if s.get("type") not in ("http", "csv", "supabase", "sse", "ws", "static"): err(f"data source '{s.get('id')}': type must be http|csv|supabase|sse|ws|static")
         if s.get("type") == "supabase" and re.search(r"service_role", json.dumps(s)): err(f"data source '{s.get('id')}': never put a service_role key in the browser")
 
     # everything interactive: who has something to say

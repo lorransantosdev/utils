@@ -1,0 +1,4 @@
+.env
+sync.log
+data.json
+node_modules/

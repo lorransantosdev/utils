@@ -5,7 +5,7 @@ How the city behaves while data changes under it. Sources and security: data-sou
 ## 1. Three ways in
 | way | when | how |
 |---|---|---|
-| **Polling** | most admin screens (every 15–60 s) | `{ "type": "http" | "supabase", "intervalMs": 15000 }` — fetch, map, `update()` |
+| **Polling** | most admin screens (every 15–60 s) | `{ "type": "http" | "csv" | "supabase", "intervalMs": 15000 }` — fetch, map, `update()`. A `data.json` written by a sync script counts (data-sources.md §11) |
 | **Streaming** | ops walls, events as they happen | `{ "type": "sse" | "ws", "url": … }` — every message is JSON, mapped and passed to `update()` |
 | **From your app** | the city is a component in your product | keep a reference to the API and call `city.update(patch)` whenever your store changes |
 
@@ -24,8 +24,8 @@ A message/payload is either a world patch (`into: "world"`) or rows for one enti
 | chip | when |
 |---|---|
 | grey **No data** | sources declared, no successful read yet |
-| green **Live** | last read succeeded |
-| amber **Data is late** | the last read failed, or nothing arrived for 3 × the largest `intervalMs` |
+| green **Live · 3 min ago** | last read succeeded; the age is the patch's `asOf` |
+| amber **Data is late** | the last read failed, nothing arrived for 3 × the largest `intervalMs`, or `asOf` is older than `data.staleAfterMs` (30 min) |
 | **Snapshot of <date>** | no live sources; `meta.asOf` is shown |
 Place-level honesty is your job: send `status: "none"` (grey card, grey mark) for a place whose
 data you couldn't read, never `ok`.
@@ -45,7 +45,7 @@ data you couldn't read, never `ok`.
 | vehicle state, color, page, lines, alert pins | new places |
 | new vehicles (take a free bay) | drawing new people (they appear in lists, not as figures) |
 | place status, card, page, screen text, sub | changing a place's kind, capacity bays, floors, vault size |
-| KPIs, actions, `asOf` | roles, states definitions, palette, brand |
+| KPIs, actions, `asOf`, `banner` | roles, states definitions, palette, brand |
 For a city that changes structure often, rebuild the snapshot periodically and reload the page
 (e.g. every hour on a wall screen), keeping the live source for the minute-to-minute part.
 

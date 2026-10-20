@@ -65,3 +65,18 @@ If you can't, the design is wrong: add a KPI, a card line, a status, an action �
 ## 7. Accessibility and motion
 - `prefers-reduced-motion` disables flights and fades (screenshots use it).
 - Every HUD button has a title/aria-label; drawer text ≥ 11 px; focus rings visible.
+
+## 8. What you see → what to do
+Most problems are fixed by stating what is on screen, in plain words, and checking the right file.
+
+| what you see | likely cause / what to do |
+|---|---|
+| a blank page or a console error | open the page through a server (`node sync.mjs --serve 3000`), not `file://`; check the three.js import map; run `validate.py` |
+| the chip stays grey "No data" | the first request never succeeded: URL (relative to the page), CORS, auth; Supabase: RLS or anon key |
+| the chip is amber "Data is late" | the sync stopped or failed: read `sync.log`, fix the key or the query, make the script survive that failure next time |
+| a number is wrong | compare the converter / `toPatch` rule with the source's own dashboard ("this month only?", "net of refunds?"), fix it, show the new figure next to the source's |
+| clicking something does nothing | it has no `tip`/`lines`/`page` → add them; run `screenshot.mjs --probe` to list what answers a click |
+| a card covers the thing it is about | the drawer flies the camera so the subject stays beside it; if a custom page is huge, split it into blocks |
+| it looks plain | more `lines` with numbers, `status` on places, `alert` pins, a tower with `floors`/`vault` rules — not more decoration |
+| it doesn't feel like the business | brand color + logo path, `signSub`, place names and kinds, the roles' labels; the look itself stays the engine's |
+| slow or jumpy on a phone | fewer places (group into a `cluster`), fewer people per place, `pixelRatio: 1` |

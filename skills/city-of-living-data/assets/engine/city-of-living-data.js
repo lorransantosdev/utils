@@ -1069,10 +1069,11 @@ export function createCity(host, worldIn, opts = {}) {
     if (reduced() || typeof to !== 'number') { el.textContent = fmt(to); return; }
     const t0 = performance.now(); const step = (now) => { const k = Math.min(1, (now - t0) / 800), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step);
   }
+  const KPI_PREV = new Map(); // last shown value per label, so a refresh counts from there, not from 0
   function renderKpis() {
     const box = $('kpis'); box.hidden = !W.kpis.length;
     box.innerHTML = W.kpis.map((k, i) => `<${k.ref ? 'button' : 'div'} class="kpi ${k.tone ?? ''}" data-kpi="${i}"><span>${esc(k.label)}</span><b class="num"><span data-kv="${i}">–</span>${k.sub ? `<em>${esc(k.sub)}</em>` : ''}</b></${k.ref ? 'button' : 'div'}>`).join('');
-    W.kpis.forEach((k, i) => countUp(box.querySelector(`[data-kv="${i}"]`), k.value, (v) => typeof k.value === 'number' ? fmtNum(k.format === 'int' || !k.format ? Math.round(v) : v, k.format) : String(k.value)));
+    W.kpis.forEach((k, i) => { const el = box.querySelector(`[data-kv="${i}"]`); if (typeof KPI_PREV.get(k.label) === 'number') shown.set(el, KPI_PREV.get(k.label)); KPI_PREV.set(k.label, k.value); countUp(el, k.value, (v) => typeof k.value === 'number' ? fmtNum(k.format === 'int' || !k.format ? Math.round(v) : v, k.format) : String(k.value)); });
   }
   let mode = 'map', inside = null, tour = null, replay = null, videoMode = false;
   function renderDock() {
@@ -1939,7 +1940,7 @@ export function createCity(host, worldIn, opts = {}) {
       else { const nv = { state: 'parked', color: '#C3C8CF', ...d, id, place: d.place != null ? String(d.place) : null }; VEH.push(nv); added.push(nv); }
     }
     for (const d of patch.people ?? []) { const q = perById.get(String(d.id)); if (q) Object.assign(q, d, { id: q.id }); else PEO.push({ state: 'idle', ...d, id: String(d.id) }); }
-    if (patch.kpis) { W.kpis = patch.kpis; renderKpis(); }
+    if (patch.kpis && JSON.stringify(patch.kpis) !== JSON.stringify(W.kpis)) { W.kpis = patch.kpis; renderKpis(); }  // unchanged KPIs don't re-animate on every poll
     if (patch.actions) { ACTS.length = 0; patch.actions.forEach((a, i) => ACTS.push({ sev: 'amber', ...a, id: String(a.id ?? 'a' + i) })); }
     if (patch.asOf) { W.meta.asOf = patch.asOf; renderAsOf(); }
     if ('banner' in patch) { W.meta.banner = patch.banner; renderBanner(); }

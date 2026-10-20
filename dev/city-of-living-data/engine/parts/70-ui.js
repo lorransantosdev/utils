@@ -6,10 +6,11 @@
     if (reduced() || typeof to !== 'number') { el.textContent = fmt(to); return; }
     const t0 = performance.now(); const step = (now) => { const k = Math.min(1, (now - t0) / 800), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step);
   }
+  const KPI_PREV = new Map(); // last shown value per label, so a refresh counts from there, not from 0
   function renderKpis() {
     const box = $('kpis'); box.hidden = !W.kpis.length;
     box.innerHTML = W.kpis.map((k, i) => `<${k.ref ? 'button' : 'div'} class="kpi ${k.tone ?? ''}" data-kpi="${i}"><span>${esc(k.label)}</span><b class="num"><span data-kv="${i}">–</span>${k.sub ? `<em>${esc(k.sub)}</em>` : ''}</b></${k.ref ? 'button' : 'div'}>`).join('');
-    W.kpis.forEach((k, i) => countUp(box.querySelector(`[data-kv="${i}"]`), k.value, (v) => typeof k.value === 'number' ? fmtNum(k.format === 'int' || !k.format ? Math.round(v) : v, k.format) : String(k.value)));
+    W.kpis.forEach((k, i) => { const el = box.querySelector(`[data-kv="${i}"]`); if (typeof KPI_PREV.get(k.label) === 'number') shown.set(el, KPI_PREV.get(k.label)); KPI_PREV.set(k.label, k.value); countUp(el, k.value, (v) => typeof k.value === 'number' ? fmtNum(k.format === 'int' || !k.format ? Math.round(v) : v, k.format) : String(k.value)); });
   }
   let mode = 'map', inside = null, tour = null, replay = null, videoMode = false;
   function renderDock() {

@@ -100,7 +100,7 @@
       else { const nv = { state: 'parked', color: '#C3C8CF', ...d, id, place: d.place != null ? String(d.place) : null }; VEH.push(nv); added.push(nv); }
     }
     for (const d of patch.people ?? []) { const q = perById.get(String(d.id)); if (q) Object.assign(q, d, { id: q.id }); else PEO.push({ state: 'idle', ...d, id: String(d.id) }); }
-    if (patch.kpis) { W.kpis = patch.kpis; renderKpis(); }
+    if (patch.kpis && JSON.stringify(patch.kpis) !== JSON.stringify(W.kpis)) { W.kpis = patch.kpis; renderKpis(); }  // unchanged KPIs don't re-animate on every poll
     if (patch.actions) { ACTS.length = 0; patch.actions.forEach((a, i) => ACTS.push({ sev: 'amber', ...a, id: String(a.id ?? 'a' + i) })); }
     if (patch.asOf) { W.meta.asOf = patch.asOf; renderAsOf(); }
     if ('banner' in patch) { W.meta.banner = patch.banner; renderBanner(); }

@@ -9,6 +9,27 @@
       "source": "./",
       "strict": false,
       "skills": ["./skills/city-of-living-data"]
+    },
+    {
+      "name": "lorran-roteiro",
+      "description": "Ready-to-record video scripts for @lorrandev built for retention, DM shares and memorability (PT-BR).",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/lorran-roteiro"]
+    },
+    {
+      "name": "lorran-pauta",
+      "description": "Weekly or monthly content plan for @lorrandev across the 4 audience layers, with verified opportunities (PT-BR).",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/lorran-pauta"]
+    },
+    {
+      "name": "lorran-metricas",
+      "description": "Instagram Insights pulled through Chrome, the ratios that matter and a weekly review that updates the learnings (PT-BR).",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/lorran-metricas"]
     }
   ]
 }

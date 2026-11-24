@@ -6,6 +6,7 @@ Tools I build and share — starting with **Agent Skills** for Claude.
 |---|---|
 | [**skills/**](./skills) | Agent Skills you can install in Claude.ai or Claude Code |
 | [city-of-living-data](./skills/city-of-living-data) | Your business, SaaS or system as a living 3D city where everything is clickable ![downloads](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lorransantosdev/utils/main/stats/city-of-living-data.json) |
+| [lorran-roteiro](./skills/lorran-roteiro) · [lorran-pauta](./skills/lorran-pauta) · [lorran-metricas](./skills/lorran-metricas) | My content system for @lorrandev: scripts built for retention, a weekly plan across 4 audience layers, and a metrics review that learns (PT-BR) |
 
 ![City of Living Data](skills/city-of-living-data/docs/screenshots/overview.png)
 

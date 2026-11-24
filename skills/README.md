@@ -5,6 +5,9 @@ Agent Skills for Claude (Claude.ai, Claude Code and the API). Each folder is one
 | skill | what it does | downloads |
 |---|---|---|
 | [city-of-living-data](./city-of-living-data) | Turns a business, a SaaS or a system into a living 3D city where everything is clickable — monitor data, explain flows, present it on video. | ![downloads](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lorransantosdev/utils/main/stats/city-of-living-data.json) |
+| [lorran-roteiro](./lorran-roteiro) | Writes ready-to-record short and long video scripts for @lorrandev, built for retention, DM shares and memorability (PT-BR). | ![downloads](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lorransantosdev/utils/main/stats/lorran-roteiro.json) |
+| [lorran-pauta](./lorran-pauta) | Plans the week or month of content for @lorrandev across the 4 audience layers, with verified opportunities for the "Radar" series (PT-BR). | ![downloads](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lorransantosdev/utils/main/stats/lorran-pauta.json) |
+| [lorran-metricas](./lorran-metricas) | Pulls Instagram Insights through Chrome, computes the ratios that matter and runs the weekly review that updates what was learned (PT-BR). | ![downloads](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lorransantosdev/utils/main/stats/lorran-metricas.json) |
 
 Download numbers per version and per week: [STATS.md](./STATS.md).
 
